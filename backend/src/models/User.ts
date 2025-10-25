@@ -1,4 +1,3 @@
- 
 import mongoose, { Schema, Document } from 'mongoose';
 import { User as IUser } from '../types/index';
 
@@ -10,6 +9,7 @@ interface UserDocument extends Document, IUser {
   lastLogin: Date | null;
   resetTokenExpiry: Date | null;
   resetToken: string | null;
+  role?: 'user' | 'admin';
 }
 
 const userSchema = new Schema<UserDocument>(
@@ -36,6 +36,11 @@ const userSchema = new Schema<UserDocument>(
       required: [true, 'Please provide a password'],
       minlength: [8, 'Password must be at least 8 characters'],
       select: false,
+    },
+    role: {
+      type: String,
+      enum: ['user', 'admin'],
+      default: 'user',
     },
     loginAttempts: {
       type: Number,
