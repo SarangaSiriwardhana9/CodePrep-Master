@@ -1,6 +1,12 @@
+ 
 import bcryptjs from 'bcryptjs';
+import { PASSWORD_REGEX } from '../config/constants';
 
 const SALT_ROUNDS = 10;
+
+export const validatePasswordStrength = (password: string): boolean => {
+  return PASSWORD_REGEX.test(password);
+};
 
 export const hashPassword = async (password: string): Promise<string> => {
   try {
@@ -11,7 +17,10 @@ export const hashPassword = async (password: string): Promise<string> => {
   }
 };
 
-export const comparePassword = async (password: string, hashedPassword: string): Promise<boolean> => {
+export const comparePassword = async (
+  password: string,
+  hashedPassword: string
+): Promise<boolean> => {
   try {
     const isMatch = await bcryptjs.compare(password, hashedPassword);
     return isMatch;
