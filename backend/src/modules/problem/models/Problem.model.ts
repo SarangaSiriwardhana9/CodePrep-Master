@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { IProblem } from '../types/index';
+import { IProblem } from '../types/problem.types';
 
 interface ProblemDocument extends Document, IProblem {
   _id: mongoose.Types.ObjectId;

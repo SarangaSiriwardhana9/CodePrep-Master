@@ -3,8 +3,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 import { connectDB } from './config/database';
-import authRoutes from './routes/authRoutes';
-import problemRoutes from './routes/problemRoutes';
+import authRoutes from './modules/auth/routes/auth.routes';
+import userRoutes from './modules/user/routes/user.routes';
+import problemRoutes from './modules/problem/routes/problem.routes';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ connectDB();
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/problems', problemRoutes);
 
 // Health check
@@ -32,7 +34,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // 404 handler
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: {

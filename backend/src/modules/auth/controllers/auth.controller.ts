@@ -1,18 +1,17 @@
- 
 import { Request, Response } from 'express';
-import { User } from '../models/User';
+import { User } from '../models/User.model';
 import {
   hashPassword,
   comparePassword,
   validatePasswordStrength,
-} from '../utils/passwordUtils';
+} from '../utils/password.utils';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
   generateResetToken,
   getResetTokenExpiry,
-} from '../utils/tokenUtils';
+} from '../utils/token.utils';
 import {
   HTTP_STATUS,
   ERROR_MESSAGES,
@@ -21,8 +20,8 @@ import {
   LOGIN_ATTEMPT_LIMIT,
   LOGIN_ATTEMPT_WINDOW,
   ACCOUNT_LOCK_TIME,
-} from '../config/constants';
-import { AuthResponse } from '../types/index';
+} from '../../../config/constants';
+import { AuthResponse } from '../types/auth.types';
 
 const setCookies = (res: Response, accessToken: string, refreshToken: string) => {
   res.cookie('accessToken', accessToken, {

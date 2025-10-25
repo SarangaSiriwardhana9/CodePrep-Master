@@ -8,9 +8,9 @@ import {
   getProblemStats,
   searchProblems,
   getProblemsByConcept,
-} from '../controllers/problemController';
-import { authMiddleware } from '../middleware/authMiddleware';
-import { adminMiddleware } from '../middleware/adminMiddleware';
+} from '../controllers/problem.controller';
+import { authMiddleware } from '../../auth/middleware/auth.middleware';
+import { adminMiddleware } from '../../auth/middleware/admin.middleware';
 
 const router = express.Router();
 

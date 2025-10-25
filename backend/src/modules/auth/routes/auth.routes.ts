@@ -1,4 +1,3 @@
- 
 import express from 'express';
 import {
   signup,
@@ -8,8 +7,8 @@ import {
   getProfile,
   forgotPassword,
   resetPassword,
-} from '../controllers/authController';
-import { authMiddleware } from '../middleware/authMiddleware';
+} from '../controllers/auth.controller';
+import { authMiddleware } from '../middleware/auth.middleware';
 
 const router = express.Router();
 

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Problem } from '../models/Problem';
-import { CreateProblemInput, UpdateProblemInput, ProblemFilterQuery } from '../types/index';
-import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../config/constants';
+import { Problem } from '../models/Problem.model';
+import { CreateProblemInput, UpdateProblemInput, ProblemFilterQuery } from '../types/problem.types';
+import { HTTP_STATUS, ERROR_MESSAGES, SUCCESS_MESSAGES } from '../../../config/constants';
 
 // FR-PROB-002: Get All Problems with Filtering & Search
 export const getAllProblems = async (req: Request, res: Response): Promise<void> => {

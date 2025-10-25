@@ -1,7 +1,6 @@
- 
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { JwtPayload } from '../types/index';
+import { JwtPayload } from '../types/auth.types';
 
 const JWT_SECRET = (process.env.JWT_SECRET || 'jwt_secret_key') as string;
 const REFRESH_TOKEN_SECRET = (process.env.REFRESH_TOKEN_SECRET ||

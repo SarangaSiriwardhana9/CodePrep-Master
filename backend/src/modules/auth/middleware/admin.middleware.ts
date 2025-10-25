@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { User } from '../models/User';
-import { HTTP_STATUS, ERROR_MESSAGES } from '../config/constants';
+import { User } from '../models/User.model';
+import { HTTP_STATUS, ERROR_MESSAGES } from '../../../config/constants';
 
 export const adminMiddleware = async (
   req: Request,

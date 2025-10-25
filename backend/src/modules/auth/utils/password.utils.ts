@@ -1,6 +1,5 @@
- 
 import bcryptjs from 'bcryptjs';
-import { PASSWORD_REGEX } from '../config/constants';
+import { PASSWORD_REGEX } from '../../../config/constants';
 
 const SALT_ROUNDS = 10;
 

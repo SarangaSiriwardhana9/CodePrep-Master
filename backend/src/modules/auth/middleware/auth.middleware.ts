@@ -1,7 +1,6 @@
- 
 import { Request, Response, NextFunction } from 'express';
-import { verifyAccessToken } from '../utils/tokenUtils';
-import { HTTP_STATUS, ERROR_MESSAGES } from '../config/constants';
+import { verifyAccessToken } from '../utils/token.utils';
+import { HTTP_STATUS, ERROR_MESSAGES } from '../../../config/constants';
 
 declare global {
   namespace Express {

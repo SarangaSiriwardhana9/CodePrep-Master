@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
-import { User as IUser } from '../types/index';
+import { User as IUser } from '../types/auth.types';
 
 interface UserDocument extends Document, IUser {
   _id: mongoose.Types.ObjectId;
