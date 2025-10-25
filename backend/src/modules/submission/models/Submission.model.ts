@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ISubmission extends Document {
+  _id: Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   problemId: mongoose.Types.ObjectId;
   code: string;

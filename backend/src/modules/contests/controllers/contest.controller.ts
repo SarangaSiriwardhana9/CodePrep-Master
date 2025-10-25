@@ -128,7 +128,7 @@ export const createContest = async (req: Request, res: Response): Promise<void> 
       success: true,
       message: 'Contest created successfully',
       data: {
-        _id: (contest._id as any).toString(),
+        _id: contest._id.toString(),
         title: contest.title,
         description: contest.description,
         createdBy: contest.createdBy.toString(),
@@ -191,7 +191,7 @@ export const getContests = async (req: Request, res: Response): Promise<void> =>
       message: 'Contests fetched successfully',
       data: {
         contests: contests.map((contest) => ({
-          _id: (contest._id as any).toString(),
+          _id: contest._id.toString(),
           title: contest.title,
           description: contest.description,
           createdBy: contest.createdBy.toString(),
@@ -248,7 +248,7 @@ export const getContestById = async (req: Request, res: Response): Promise<void>
       success: true,
       message: 'Contest fetched successfully',
       data: {
-        _id: (contest._id as any).toString(),
+        _id: contest._id.toString(),
         title: contest.title,
         description: contest.description,
         createdBy: contest.createdBy.toString(),
@@ -356,7 +356,7 @@ export const registerForContest = async (req: Request, res: Response): Promise<v
       success: true,
       message: 'Successfully registered for contest',
       data: {
-        _id: (participation._id as any).toString(),
+        _id: participation._id.toString(),
         contestId: participation.contestId.toString(),
         userId: participation.userId.toString(),
         joinedAt: participation.joinedAt,
@@ -471,7 +471,7 @@ export const submitDuringContest = async (req: Request, res: Response): Promise<
       success: true,
       message: 'Solution submitted successfully',
       data: {
-        _id: (submission._id as any).toString(),
+        _id: submission._id.toString(),
         contestId: submission.contestId.toString(),
         userId: submission.userId.toString(),
         problemId: submission.problemId.toString(),
@@ -669,7 +669,7 @@ export const updateContest = async (req: Request, res: Response): Promise<void> 
       success: true,
       message: 'Contest updated successfully',
       data: {
-        _id: (updatedContest!._id as any).toString(),
+        _id: updatedContest!._id.toString(),
         title: updatedContest!.title,
         description: updatedContest!.description,
         difficulty: updatedContest!.difficulty,
@@ -786,7 +786,7 @@ export const getContestResults = async (req: Request, res: Response): Promise<vo
         solutionsSubmitted: participation.solutionsSubmitted,
         totalProblems: contest.totalProblems,
         submissions: submissions.map((sub) => ({
-          _id: (sub._id as any).toString(),
+          _id: sub._id.toString(),
           problemId: sub.problemId.toString(),
           status: sub.status,
           score: sub.score,

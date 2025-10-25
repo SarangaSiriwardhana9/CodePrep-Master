@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IContest extends Document {
+  _id: Types.ObjectId;
   title: string;
   description: string;
   createdBy: mongoose.Types.ObjectId;
@@ -20,6 +21,7 @@ export interface IContest extends Document {
 }
 
 export interface IContestParticipation extends Document {
+  _id: Types.ObjectId;
   contestId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   joinedAt: Date;
@@ -33,6 +35,7 @@ export interface IContestParticipation extends Document {
 }
 
 export interface IContestSubmission extends Document {
+  _id: Types.ObjectId;
   contestId: mongoose.Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   problemId: mongoose.Types.ObjectId;
