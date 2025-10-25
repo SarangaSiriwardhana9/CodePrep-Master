@@ -1,0 +1,2645 @@
+Software Requirements Specification (SRS)
+Interview Prep Platform with Spaced Repetition
+Version: 1.0
+Date: October 24, 2025
+Project Name: CodePrep Master
+
+Table of Contents
+
+Introduction
+Overall Description
+Functional Requirements
+Non-Functional Requirements
+System Architecture
+Database Design
+API Specifications
+User Interface Requirements
+Security Requirements
+Testing Requirements
+
+
+1. Introduction
+1.1 Purpose
+This document specifies the requirements for an Interview Preparation Platform that uses spaced repetition algorithms to optimize coding practice for technical interviews. The system aims to help users retain problem-solving patterns more effectively than traditional practice methods.
+1.2 Scope
+Product Name: CodePrep Master
+Core Features:
+
+User authentication and profile management
+Curated coding problem database
+Spaced repetition algorithm (SM-2)
+Code editor with syntax highlighting
+Progress tracking and analytics
+Adaptive difficulty system
+Daily review scheduler
+Concept mastery tracking
+
+Out of Scope (Phase 1):
+
+Real-time code execution
+Video explanations
+Community features (forums, discussions)
+Mobile application
+Interview scheduling
+
+1.3 Definitions and Acronyms
+
+SM-2: SuperMemo 2 Algorithm
+SRS: Spaced Repetition System
+JWT: JSON Web Token
+CRUD: Create, Read, Update, Delete
+EF: Easiness Factor
+Mastery Score: Percentage indicating concept understanding (0-100%)
+
+1.4 Technology Stack
+
+Frontend: Next.js 14, TypeScript, Shadcn UI, Tailwind CSS
+Backend: Node.js, Express.js, TypeScript
+Database: MongoDB with Mongoose ODM
+Authentication: JWT with HTTP-only cookies
+Code Editor: Monaco Editor
+Deployment: Vercel (Frontend), Railway/Render (Backend)
+
+
+2. Overall Description
+2.1 Product Perspective
+A standalone web application that serves as an intelligent interview preparation companion, replacing random practice with scientifically-backed spaced repetition.
+2.2 User Classes and Characteristics
+Primary Users:
+
+Job Seekers: Preparing for technical interviews (FAANG, startups)
+Students: Computer Science students learning DSA
+Career Switchers: Bootcamp graduates entering tech
+
+User Expertise Levels:
+
+Beginner: 0-50 problems solved
+Intermediate: 51-200 problems solved
+Advanced: 201+ problems solved
+
+2.3 Operating Environment
+
+Client-side: Modern web browsers (Chrome 90+, Firefox 88+, Safari 14+, Edge 90+)
+Server-side: Node.js 18+ environment
+Database: MongoDB 6.0+
+Responsive: Desktop (1024px+), Tablet (768px-1023px), Mobile (320px-767px)
+
+2.4 Design and Implementation Constraints
+
+Must work offline for viewing past problems (PWA optional)
+Page load time < 3 seconds
+API response time < 500ms
+Support up to 1000 concurrent users (Phase 1)
+Data privacy compliance (GDPR basics)
+
+
+3. Functional Requirements
+3.1 User Authentication Module
+3.1.1 User Registration (FR-AUTH-001)
+Priority: High
+Description: Users can create a new account
+Inputs:
+
+Full Name (string, 2-50 characters)
+Email (valid email format)
+Password (minimum 8 characters, 1 uppercase, 1 lowercase, 1 number)
+Confirm Password
+
+Process:
+
+Validate all input fields
+Check if email already exists
+Hash password using bcrypt (salt rounds: 10)
+Create user document in database
+Generate JWT token
+Send verification email (optional for Phase 1)
+Return JWT token in HTTP-only cookie
+
+Outputs:
+
+Success: User object (without password), JWT token, redirect to onboarding
+Failure: Error messages (email exists, weak password, etc.)
+
+Validation Rules:
+
+Email must be unique
+Password strength must meet criteria
+Name cannot contain special characters except space, hyphen, apostrophe
+
+Error Handling:
+
+400: Invalid input data
+409: Email already registered
+500: Server error
+
+
+3.1.2 User Login (FR-AUTH-002)
+Priority: High
+Description: Registered users can log in
+Inputs:
+
+Email
+Password
+Remember Me (optional checkbox)
+
+Process:
+
+Validate email format
+Find user by email
+Compare password hash
+Generate JWT token (24h expiry or 30 days if "Remember Me")
+Update last login timestamp
+Return token in HTTP-only cookie
+
+Outputs:
+
+Success: User object, redirect to dashboard
+Failure: "Invalid credentials" error
+
+Security:
+
+Rate limiting: Max 5 attempts per 15 minutes per IP
+Account lockout: 30 minutes after 5 failed attempts
+
+
+3.1.3 Forgot Password (FR-AUTH-003)
+Priority: Medium
+Description: Users can reset forgotten passwords
+Inputs:
+
+Email address
+
+Process:
+
+Check if email exists
+Generate password reset token (expires in 1 hour)
+Send reset email with link
+Store token in database with expiry
+
+Outputs:
+
+Success message (same message whether email exists or not - security)
+Reset token valid for 1 hour
+
+
+3.1.4 Password Reset (FR-AUTH-004)
+Priority: Medium
+Inputs:
+
+Reset token (from email link)
+New password
+Confirm password
+
+Process:
+
+Validate token and expiry
+Validate new password strength
+Hash new password
+Update user password
+Invalidate reset token
+Clear all active sessions
+
+Outputs:
+
+Success: Redirect to login
+Failure: Token expired or invalid
+
+
+3.1.5 Logout (FR-AUTH-005)
+Priority: High
+Process:
+
+Clear JWT cookie
+Update last active timestamp
+Redirect to login page
+
+
+3.2 User Onboarding Module
+3.2.1 Initial Assessment (FR-ONBOARD-001)
+Priority: High
+Description: New users take a quick skill assessment
+Flow:
+
+Welcome screen explains the assessment (5 easy problems)
+Present 5 curated problems (1 from each major concept)
+
+Arrays
+Strings
+Linked Lists
+Hash Tables
+Two Pointers
+
+
+User attempts each problem (no time limit)
+System records: time taken, correct/incorrect, difficulty rating
+
+Outputs:
+
+Initial skill profile
+Concept mastery scores (0-100%)
+Recommended starting difficulty
+
+Data Collected:
+javascript{
+  concepts: {
+    "arrays": { score: 80, timeTaken: 600 },
+    "strings": { score: 60, timeTaken: 900 },
+    "linkedLists": { score: 40, timeTaken: 1200 },
+    "hashTables": { score: 70, timeTaken: 800 },
+    "twoPointers": { score: 50, timeTaken: 1000 }
+  },
+  overallLevel: "Beginner" // or Intermediate, Advanced
+}
+
+3.2.2 Goal Setting (FR-ONBOARD-002)
+Priority: Medium
+Description: Users set their preparation goals
+Inputs:
+
+Target Interview Date (optional)
+Daily Time Commitment (15min, 30min, 1hr, 2hr)
+Focus Areas (select multiple):
+
+Arrays & Hashing
+Two Pointers
+Sliding Window
+Stack
+Binary Search
+Linked Lists
+Trees
+Graphs
+Dynamic Programming
+Greedy
+Backtracking
+
+
+
+Process:
+
+Calculate study plan based on:
+
+Days until interview
+Daily time commitment
+Current skill level
+Focus areas
+
+
+Generate personalized roadmap
+Set up daily review schedule
+
+Outputs:
+
+Customized study plan
+Daily problem targets
+Milestone dates
+
+
+3.3 Problem Management Module
+3.3.1 Problem Database (FR-PROB-001)
+Priority: High
+Description: System maintains a curated problem collection
+Problem Structure:
+javascript{
+  _id: ObjectId,
+  title: "Two Sum",
+  slug: "two-sum",
+  difficulty: "Easy", // Easy, Medium, Hard
+  concepts: ["arrays", "hash-table"],
+  description: "Markdown formatted description...",
+  examples: [
+    {
+      input: "nums = [2,7,11,15], target = 9",
+      output: "[0,1]",
+      explanation: "..."
+    }
+  ],
+  constraints: [
+    "2 <= nums.length <= 10^4",
+    "-10^9 <= nums[i] <= 10^9"
+  ],
+  starterCode: {
+    javascript: "function twoSum(nums, target) {\n  // Your code here\n}",
+    python: "def two_sum(nums, target):\n    # Your code here",
+    java: "class Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Your code here\n    }\n}"
+  },
+  testCases: [
+    {
+      input: { nums: [2,7,11,15], target: 9 },
+      expectedOutput: [0,1],
+      isHidden: false
+    },
+    {
+      input: { nums: [3,2,4], target: 6 },
+      expectedOutput: [1,2],
+      isHidden: true // Hidden test cases
+    }
+  ],
+  hints: [
+    "Try using a hash map to store values you've seen",
+    "For each number, check if target - number exists in your hash map"
+  ],
+  solution: {
+    approach: "Hash Table",
+    explanation: "Detailed explanation...",
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(n)",
+    code: "..."
+  },
+  relatedProblems: ["three-sum", "four-sum"],
+  companyTags: ["Google", "Amazon", "Facebook"],
+  frequency: 95, // How often asked in interviews (0-100)
+  likes: 12543,
+  dislikes: 432,
+  createdAt: Date,
+  updatedAt: Date
+}
+```
+
+**Initial Problem Set:**
+- Easy: 40 problems
+- Medium: 30 problems
+- Hard: 10 problems
+- **Total: 80 problems** (can expand later)
+
+---
+
+#### 3.3.2 Browse Problems (FR-PROB-002)
+**Priority:** High
+
+**Description:** Users can browse and filter problems
+
+**Filters:**
+- Difficulty (Easy, Medium, Hard)
+- Concepts (multi-select)
+- Status (Todo, Attempted, Solved, Review)
+- Companies (Google, Amazon, etc.)
+- Search by title
+
+**Sorting:**
+- Frequency (High to Low)
+- Difficulty (Easy to Hard)
+- Acceptance Rate
+- Recently Added
+
+**Display:**
+- Grid/List view toggle
+- Problem card shows:
+  - Title
+  - Difficulty (color-coded)
+  - Concepts (badges)
+  - Status icon
+  - Due date (if scheduled for review)
+
+---
+
+#### 3.3.3 Problem Detail Page (FR-PROB-003)
+**Priority:** High
+
+**Description:** Full problem view with code editor
+
+**Layout:**
+```
+┌─────────────────────────────────────────────────────┐
+│  Problem: Two Sum                     [Difficulty]  │
+├─────────────────┬───────────────────────────────────┤
+│                 │                                   │
+│  Description    │   Code Editor                     │
+│  Panel          │   (Monaco Editor)                 │
+│  (Scrollable)   │                                   │
+│                 │   - Language Selector             │
+│  - Problem      │   - Run Code Button               │
+│  - Examples     │   - Submit Button                 │
+│  - Constraints  │   - Reset Button                  │
+│  - Hints        │                                   │
+│                 │   Test Cases Panel                │
+│                 │   - Show passed/failed            │
+│                 │                                   │
+└─────────────────┴───────────────────────────────────┘
+Features:
+
+Resizable panels
+Code auto-save (localStorage)
+Language selector (JavaScript, Python, Java)
+Syntax highlighting
+Auto-complete
+Line numbers
+Tab navigation
+
+
+3.3.4 Code Submission (FR-PROB-004)
+Priority: High
+Description: Users submit solutions for evaluation
+Process:
+
+User clicks "Submit"
+Frontend validates code is not empty
+Send code to backend
+Backend runs against test cases (mock for Phase 1)
+Calculate results
+Return pass/fail status
+Show which test cases passed/failed
+
+Mock Evaluation (Phase 1):
+
+Check if code includes key patterns
+Manual test case verification
+User self-reports correct/incorrect
+
+Phase 2 (Future):
+
+Integrate Judge0 API for real execution
+Security sandbox
+
+Outputs:
+javascript{
+  status: "Accepted", // or "Wrong Answer", "Runtime Error"
+  testResults: [
+    { case: 1, passed: true, time: 50 },
+    { case: 2, passed: true, time: 45 },
+    { case: 3, passed: false, expected: [1,2], got: [2,1] }
+  ],
+  overallTime: 95, // ms
+  memoryUsed: 12.5 // MB
+}
+```
+
+---
+
+#### 3.3.5 Difficulty Rating (FR-PROB-005)
+**Priority:** High
+
+**Description:** After submission, user rates difficulty
+
+**Prompt:**
+```
+"How difficult was this problem for you?"
+
+😫 Very Hard (Quality: 0)
+😓 Hard (Quality: 1)  
+😟 Somewhat Difficult (Quality: 2)
+😐 Medium (Quality: 3)
+😊 Easy (Quality: 4)
+🎉 Too Easy (Quality: 5)
+This quality rating feeds into the SM-2 algorithm
+Additional Data Collected:
+
+Time taken to solve
+Number of hints used
+Number of submissions before success
+
+
+3.4 Spaced Repetition Module
+3.4.1 SM-2 Algorithm Implementation (FR-SRS-001)
+Priority: Critical
+Description: Core algorithm that schedules problem reviews
+Algorithm Variables (Per User-Problem):
+javascript{
+  userId: ObjectId,
+  problemId: ObjectId,
+  easinessFactor: 2.5,    // Initial value
+  interval: 0,            // Days until next review
+  repetitions: 0,         // Successful reviews count
+  nextReviewDate: null,   // ISO Date
+  lastReviewDate: null,   // ISO Date
+  quality: null,          // Last quality rating (0-5)
+  history: []             // All attempt records
+}
+Algorithm Logic:
+javascriptfunction calculateNextReview(currentData, qualityRating) {
+  let { easinessFactor, interval, repetitions } = currentData;
+  
+  // If quality >= 3 (correct answer)
+  if (qualityRating >= 3) {
+    if (repetitions === 0) {
+      interval = 1;  // Review tomorrow
+    } else if (repetitions === 1) {
+      interval = 6;  // Review in 6 days
+    } else {
+      interval = Math.round(interval * easinessFactor);
+    }
+    repetitions++;
+  } else {
+    // Incorrect answer - reset
+    repetitions = 0;
+    interval = 1;
+  }
+  
+  // Adjust easiness factor
+  easinessFactor = easinessFactor + 
+    (0.1 - (5 - qualityRating) * (0.08 + (5 - qualityRating) * 0.02));
+  
+  // Minimum easiness factor
+  if (easinessFactor < 1.3) {
+    easinessFactor = 1.3;
+  }
+  
+  // Calculate next review date
+  const nextReviewDate = new Date();
+  nextReviewDate.setDate(nextReviewDate.getDate() + interval);
+  
+  return {
+    easinessFactor,
+    interval,
+    repetitions,
+    nextReviewDate,
+    lastReviewDate: new Date()
+  };
+}
+Trigger Points:
+
+After every problem submission
+After difficulty rating
+
+
+3.4.2 Daily Review Queue (FR-SRS-002)
+Priority: High
+Description: System generates daily review list
+Queue Generation Logic:
+javascript// Priority Order:
+1. Overdue problems (nextReviewDate < today)
+2. Due today (nextReviewDate === today)
+3. New problems from weak concepts
+4. Random new problems
+```
+
+**Display:**
+- "You have X problems to review today"
+- Color-coded urgency:
+  - Red: Overdue (>1 day late)
+  - Yellow: Due today
+  - Green: Optional new problems
+
+**Limits:**
+- Max 10 reviews per day (customizable in settings)
+- User can increase limit
+- Balance between reviews and new problems (70% reviews, 30% new)
+
+---
+
+#### 3.4.3 Review Session (FR-SRS-003)
+**Priority:** High
+
+**Description:** Focused mode for daily reviews
+
+**Flow:**
+1. Click "Start Daily Review"
+2. Enter full-screen mode (optional)
+3. Problems appear one by one
+4. Cannot skip (must complete or mark "too hard")
+5. Progress bar shows remaining reviews
+6. After all reviews, show summary
+
+**Features:**
+- Timer per problem
+- Pause option
+- Hints available
+- Can mark "Need More Time" to reschedule for later today
+
+**Summary Screen:**
+```
+🎉 Review Session Complete!
+
+✅ Completed: 8/10
+⏰ Average Time: 12 minutes
+📈 Concepts Improved:
+   - Arrays: +5%
+   - Trees: +3%
+
+🔄 Problems Mastered: 3
+📅 Next Review: Tomorrow (5 problems)
+
+3.5 Progress Tracking Module
+3.5.1 Dashboard (FR-TRACK-001)
+Priority: High
+Description: Main user dashboard with overview
+Sections:
+A. Daily Stats Card:
+
+Problems solved today
+Time spent today
+Current streak (consecutive days)
+Daily goal progress bar
+
+B. Upcoming Reviews Card:
+
+Reviews due today
+Reviews due tomorrow
+Overdue problems count
+"Start Review" CTA button
+
+C. Concept Mastery Chart:
+
+Radar/Spider chart showing mastery levels
+All concepts (Arrays, Trees, DP, etc.)
+Visual representation 0-100%
+Click to see problems in that concept
+
+D. Recent Activity:
+
+Last 5 problems attempted
+Status (Solved/Failed)
+Time taken
+Date
+
+E. Achievement Badges:
+
+7-Day Streak
+30-Day Streak
+50 Problems Solved
+Concept Master (100% in one concept)
+Early Bird (solve before 8 AM)
+
+F. Study Plan Progress:
+
+X of Y problems completed
+Days remaining to goal
+On track / Behind schedule indicator
+
+
+3.5.2 Statistics Page (FR-TRACK-002)
+Priority: Medium
+Description: Detailed analytics page
+Tabs:
+Overview Tab:
+
+Total problems solved
+Total time spent
+Average time per problem
+Submission accuracy rate
+Problems by difficulty (pie chart)
+
+Concepts Tab:
+
+Mastery level per concept
+Problems solved per concept
+Time spent per concept
+Weak areas highlighted
+Improvement trend graph
+
+Calendar Tab:
+
+Heatmap showing daily activity (like GitHub)
+Click date to see problems solved that day
+Streak visualization
+
+Performance Tab:
+
+Success rate over time (line graph)
+Average quality ratings trend
+Review adherence rate (% of reviews completed on time)
+
+Comparison Tab (Optional):
+
+Compare with average user
+Percentile ranking per concept
+
+
+3.5.3 Concept Mastery Calculation (FR-TRACK-003)
+Priority: High
+Description: Algorithm to calculate concept understanding
+Formula:
+javascriptfunction calculateConceptMastery(concept) {
+  const problems = getUserProblemsForConcept(concept);
+  
+  let totalScore = 0;
+  let totalWeight = 0;
+  
+  problems.forEach(problem => {
+    // Recency weight (newer attempts matter more)
+    const daysSinceAttempt = getDaysSince(problem.lastAttemptDate);
+    const recencyWeight = Math.exp(-daysSinceAttempt / 30); // Decay
+    
+    // Quality score (0-5 mapped to 0-100)
+    const qualityScore = (problem.lastQuality / 5) * 100;
+    
+    // Success multiplier
+    const successMultiplier = problem.lastAttemptSuccess ? 1 : 0.5;
+    
+    // Repetition bonus (more reviews = better retention)
+    const repetitionBonus = Math.min(problem.repetitions * 5, 20);
+    
+    const problemScore = (qualityScore * successMultiplier + repetitionBonus) 
+                         * recencyWeight;
+    
+    totalScore += problemScore;
+    totalWeight += recencyWeight;
+  });
+  
+  const mastery = totalWeight > 0 ? (totalScore / totalWeight) : 0;
+  return Math.round(Math.min(mastery, 100));
+}
+Update Triggers:
+
+After each problem submission
+Daily recalculation (background job)
+
+Display:
+
+0-30%: 🔴 Weak (Need Practice)
+31-60%: 🟡 Learning (Keep Going)
+61-80%: 🟢 Good (Solid Understanding)
+81-100%: 🔵 Mastered (Interview Ready)
+
+
+3.6 Adaptive Difficulty Module
+3.6.1 Problem Recommendation Engine (FR-ADAPT-001)
+Priority: High
+Description: System suggests next problem intelligently
+Algorithm:
+javascriptfunction getNextProblem(userId) {
+  // 1. Check for due reviews
+  const dueReviews = getReviewsDueToday(userId);
+  if (dueReviews.length > 0) {
+    return dueReviews[0]; // Prioritize reviews
+  }
+  
+  // 2. Identify weak concepts (mastery < 60%)
+  const weakConcepts = getWeakConcepts(userId);
+  
+  // 3. Get unsolved problems from weak concepts
+  const candidates = getUnsolvedProblems({
+    concepts: weakConcepts,
+    difficulty: getUserDifficultyLevel(userId)
+  });
+  
+  // 4. Score each problem
+  const scoredProblems = candidates.map(problem => {
+    let score = 0;
+    
+    // Concept weakness weight
+    problem.concepts.forEach(concept => {
+      const mastery = getConceptMastery(userId, concept);
+      score += (100 - mastery); // Lower mastery = higher score
+    });
+    
+    // Frequency weight (companies ask often)
+    score += problem.frequency * 0.5;
+    
+    // Difficulty appropriateness
+    const userLevel = getUserLevel(userId);
+    if (matchesDifficultyLevel(problem, userLevel)) {
+      score += 50;
+    }
+    
+    return { problem, score };
+  });
+  
+  // 5. Return highest scoring problem
+  scoredProblems.sort((a, b) => b.score - a.score);
+  return scoredProblems[0].problem;
+}
+Difficulty Progression:
+
+Beginner: 80% Easy, 20% Medium
+Intermediate: 20% Easy, 60% Medium, 20% Hard
+Advanced: 10% Medium, 90% Hard
+
+
+3.6.2 Dynamic Difficulty Adjustment (FR-ADAPT-002)
+Priority: Medium
+Description: System adjusts difficulty based on performance
+Triggers:
+
+After every 5 problems
+Weekly evaluation
+
+Logic:
+javascriptfunction evaluateProgressionReadiness(userId) {
+  const recentProblems = getLast10Problems(userId);
+  
+  // Calculate recent success rate
+  const successRate = recentProblems.filter(p => p.success).length / 10;
+  
+  // Calculate average quality
+  const avgQuality = recentProblems.reduce((sum, p) => sum + p.quality, 0) / 10;
+  
+  // Decision
+  if (successRate >= 0.8 && avgQuality >= 4) {
+    // User is ready for harder problems
+    incrementDifficultyLevel(userId);
+    showNotification("🎉 You're ready for harder challenges!");
+  } else if (successRate <= 0.3 && avgQuality <= 2) {
+    // User might need easier problems
+    suggestReview(userId);
+    showNotification("💡 Let's reinforce your fundamentals");
+  }
+}
+
+3.7 Hints and Solutions Module
+3.7.1 Progressive Hints System (FR-HINT-001)
+Priority: Medium
+Description: Gradual hints without revealing solution
+Hint Levels:
+javascript{
+  problem: "Two Sum",
+  hints: [
+    {
+      level: 1,
+      text: "Think about how you can check if a number exists quickly",
+      costPoints: 5
+    },
+    {
+      level: 2,
+      text: "Consider using a hash map to store numbers you've seen",
+      costPoints: 10
+    },
+    {
+      level: 3,
+      text: "For each number, check if (target - number) exists in your map",
+      costPoints: 15
+    }
+  ]
+}
+```
+
+**Points System:**
+- Users start with 100 hint points
+- Earn 10 points per problem solved without hints
+- Hints cost 5-15 points based on level
+- Cannot go below 0 points (can still view hints, just tracked)
+
+**UI:**
+- "Need a Hint?" button
+- Shows available hints in order
+- Blur text until user clicks "Reveal Hint"
+- Tracks hint usage in analytics
+
+---
+
+#### 3.7.2 Solution Viewing (FR-HINT-002)
+**Priority:** Medium
+
+**Description:** View optimal solution after solving or giving up
+
+**Conditions to View:**
+- ✅ Successfully solved the problem, OR
+- ⏰ Spent >30 minutes attempting, OR
+- 🚩 Clicked "Give Up" button
+
+**Solution Display:**
+```
+┌──────────────────────────────────────┐
+│  Optimal Solution                    │
+├──────────────────────────────────────┤
+│  Approach: Hash Table                │
+│                                       │
+│  Explanation:                         │
+│  [Detailed explanation with visuals] │
+│                                       │
+│  Time Complexity: O(n)               │
+│  Space Complexity: O(n)              │
+│                                       │
+│  Code: [Syntax highlighted]          │
+│                                       │
+│  Alternative Approaches:              │
+│  - Brute Force (O(n²))               │
+│  - Two Pointers (sorted array)       │
+│                                       │
+│  Related Problems:                    │
+│  - Three Sum                          │
+│  - Four Sum                           │
+└──────────────────────────────────────┘
+Pattern Recognition:
+After viewing solution, highlight the pattern used:
+
+"This problem uses the Hash Table Pattern"
+Show 3 similar problems using same pattern
+Add pattern to user's "Pattern Library"
+
+
+3.8 Study Plan Module
+3.8.1 Auto-Generated Study Plan (FR-PLAN-001)
+Priority: Medium
+Description: Create personalized roadmap
+Inputs:
+
+Target date (interview date)
+Daily time commitment
+Current skill level (from assessment)
+Focus concepts
+
+Algorithm:
+javascriptfunction generateStudyPlan(params) {
+  const { targetDate, dailyMinutes, skillLevel, focusConcepts } = params;
+  
+  // Calculate available study days
+  const daysAvailable = getDaysBetween(today, targetDate);
+  
+  // Estimate problems needed per concept
+  const problemsPerConcept = {
+    weak: 15,    // Concepts with mastery < 40%
+    medium: 10,  // Concepts with mastery 40-70%
+    strong: 5    // Concepts with mastery > 70%
+  };
+  
+  // Create daily schedule
+  const plan = [];
+  let currentDate = new Date();
+  
+  for (let day = 1; day <= daysAvailable; day++) {
+    const dailyProblems = Math.floor(dailyMinutes / 25); // ~25 min per problem
+    
+    // Allocate problems
+    const dayPlan = {
+      date: currentDate,
+      reviews: getReviewsScheduledFor(currentDate),
+      newProblems: selectProblemsForDay(focusConcepts, dailyProblems),
+      estimatedTime: dailyMinutes
+    };
+    
+    plan.push(dayPlan);
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return plan;
+}
+```
+
+**Output:**
+- 30/60/90 day roadmap
+- Daily problem targets
+- Milestone checkpoints (Week 1, Week 2, etc.)
+- Concept rotation schedule
+
+---
+
+#### 3.8.2 Study Plan Dashboard (FR-PLAN-002)
+**Priority:** Medium
+
+**Display:**
+```
+┌─────────────────────────────────────────────┐
+│  30-Day Interview Prep Plan                 │
+│  Target: January 15, 2026                   │
+├─────────────────────────────────────────────┤
+│  Progress: ████████░░░░ 65% (Day 20/30)    │
+│                                             │
+│  Today's Tasks:                             │
+│  ✅ Review: Two Sum                          │
+│  ✅ Review: Valid Parentheses                │
+│  ⏳ New: Merge Two Sorted Lists              │
+│  ⭕ New: Binary Tree Level Order            │
+│                                             │
+│  Weekly Goals:                              │
+│  Week 3 (Arrays & Hash Tables)              │
+│  ████████░░ 80% Complete                    │
+│                                             │
+│  Upcoming Milestones:                       │
+│  📍 Day 22: Start Dynamic Programming      │
+│  📍 Day 25: Mid-plan assessment            │
+│  📍 Day 30: Mock interview                 │
+└─────────────────────────────────────────────┘
+```
+
+**Features:**
+- Check off completed tasks
+- Adjust plan if behind schedule
+- Extend deadline option
+- Pause plan option
+
+---
+
+### 3.9 Settings and Profile Module
+
+#### 3.9.1 User Profile (FR-PROFILE-001)
+**Priority:** Medium
+
+**Editable Fields:**
+- Profile picture (upload)
+- Full name
+- Email (requires verification)
+- Current company (optional)
+- Target companies (multi-select)
+- Programming languages (primary, secondary)
+- Years of experience
+- Bio (optional)
+
+**Privacy Settings:**
+- Profile visibility (Public/Private)
+- Show statistics publicly
+- Show streak publicly
+
+---
+
+#### 3.9.2 Preferences (FR-PROFILE-002)
+**Priority:** Medium
+
+**Settings:**
+```
+General:
+- Default programming language
+- Code editor theme (Light/Dark/High Contrast)
+- Font size (12-20px)
+- Auto-save interval (30s/1min/5min)
+
+Study Settings:
+- Daily problem target (1-10)
+- Daily time goal (15min - 3hrs)
+- Preferred difficulty mix
+- Enable/disable timer during practice
+- Show hints automatically after X minutes
+
+Notifications:
+- Email reminders (daily review due)
+- Browser notifications
+- Weekly progress summary
+- Achievement notifications
+
+Review Settings:
+- Review queue size (5/10/15/20)
+- Auto-schedule reviews (Yes/No)
+- Include weekends (Yes/No)
+- Preferred review time (Morning/Afternoon/Evening)
+```
+
+---
+
+#### 3.9.3 Account Management (FR-PROFILE-003)
+**Priority:** Low
+
+**Options:**
+- Change password
+- Delete account (requires confirmation + password)
+- Export data (JSON format)
+- Clear all progress (reset account)
+
+---
+
+### 3.10 Notification Module
+
+#### 3.10.1 Email Notifications (FR-NOTIF-001)
+**Priority:** Low
+
+**Types:**
+- Daily review reminder (if pending reviews)
+- Weekly summary report
+- Streak about to break warning
+- Milestone achievements
+- Study plan deadline approaching
+
+**Frequency Control:**
+- Never / Daily / Weekly / Monthly
+
+---
+
+#### 3.10.2 In-App Notifications (FR-NOTIF-002)
+**Priority:** Medium
+
+**Display:**
+- Bell icon in navbar with badge count
+- Notification panel (slide-out)
+- Types:
+  - Achievement unlocked
+  - Reviews due today
+  - Concept mastery improvement
+  - Recommended problem
+
+**Actions:**
+- Mark as read
+- Clear all
+- Navigate to related page
+
+---
+
+### 3.11 Additional Features
+
+#### 3.11.1 Search Functionality (FR-SEARCH-001)
+**Priority:** Medium
+
+**Global Search:**
+- Search problems by title, concepts, company
+- Search solution approaches
+- Autocomplete suggestions
+- Recent searches
+- Popular searches
+
+**Filters:**
+- Difficulty
+- Concepts (multi-select)
+- Companies
+- Status (Solved/Unsolved/Review)
+- Frequency
+
+---
+
+#### 3.11.2 Bookmarks/Favorites (FR-FEATURE-001)
+**Priority:** Low
+
+**Features:**
+- Bookmark problems for later
+- Create custom lists
+- Share lists (future)
+- Export bookmarks
+
+---
+
+#### 3.11.3 Notes (FR-FEATURE-002)
+**Priority:** Low
+
+**Per Problem Notes:**
+- Private notes section
+- Markdown support
+- Save approaches tried
+- Personal hints
+
+---
+
+## 4. Non-Functional Requirements
+
+### 4.1 Performance Requirements
+
+**NFR-PERF-001: Response Time**
+- API response time: < 500ms (95th percentile)
+- Page load time: < 3 seconds (initial load)
+- Subsequent navigation: < 1 second
+- Code editor: < 100ms keystroke latency
+
+**NFR-PERF-002: Scalability**
+- Support 1,000 concurrent users (Phase 1)
+- Support 10,000 concurrent users (Phase 2)
+- Database queries optimized with indexes
+- Implement caching for frequently accessed data
+
+**NFR-PERF-003: Resource Usage**
+- Frontend bundle size: < 500KB (gzipped)
+- Image optimization: WebP format, lazy loading
+- MongoDB connection pooling
+
+---
+
+### 4.2 Security Requirements
+
+**NFR-SEC-001: Authentication**
+- JWT tokens with HTTP-only cookies
+- Token expiration: 24 hours (refresh: 7 days)
+- Password hashing: bcrypt with salt rounds = 10
+- Session management: invalidate on logout
+
+**NFR-SEC-002: Authorization**
+- Role-based access (User, Admin)
+- API route protection middleware
+- Prevent unauthorized data access
+
+**NFR-SEC-003: Data Protection**
+- HTTPS only (force SSL)
+- Input validation and sanitization
+- SQL injection prevention (Mongoose parameterization)
+- XSS prevention (Content Security Policy)
+- CSRF protection (CSRF tokens)
+
+**NFR-SEC-004: Rate Limiting**
+- Login attempts: 5 per 15 minutes per IP
+- API calls: 100 per minute per user
+- Password reset: 3 per hour per email
+
+**NFR-SEC-005: Privacy**
+- No storage of code solutions (optional: encrypted storage)
+- User data encryption at rest
+- Secure password reset flow
+- GDPR compliance (data export/deletion)
+
+---
+
+### 4.3 Reliability Requirements
+
+**NFR-REL-001: Availability**
+- Uptime: 99% (Phase 1), 99.9% (Phase 2)
+- Graceful degradation if backend down
+- Offline capability for viewing past problems (PWA)
+
+**NFR-REL-002: Data Integrity**
+- Database backups: Daily
+- Transaction consistency (MongoDB transactions)
+- Data validation before saves
+
+**NFR-REL-003: Error Handling**
+- Comprehensive error logging
+- User-friendly error messages
+- Automatic error reporting (Sentry/LogRocket)
+
+---
+
+### 4.4 Usability Requirements
+
+**NFR-USE-001: User Experience**
+- Intuitive navigation (< 3 clicks to any feature)
+- Responsive design (mobile, tablet, desktop)
+- Accessibility: WCAG 2.1 Level AA compliance
+- Keyboard navigation support
+
+**NFR-USE-002: Learnability**
+- First-time user onboarding flow
+- Tooltips for complex features
+- Help documentation
+- Video tutorials (Phase 2)
+
+**NFR-USE-003: Visual Design**
+- Consistent design system (Shadcn UI)
+- Dark mode support
+- Clear typography (readable fonts, proper contrast)
+- Loading states and skeletons
+
+---
+
+### 4.5 Maintainability Requirements
+
+**NFR-MAIN-001: Code Quality**
+- TypeScript for type safety
+- ESLint + Prettier for code formatting
+- Modular architecture
+- Comprehensive comments
+
+**NFR-MAIN-002: Testing**
+- Unit tests: 70% coverage
+- Integration tests for critical flows
+- E2E tests for main user journeys
+
+**NFR-MAIN-003: Documentation**
+- API documentation (Swagger/OpenAPI)
+- README with setup instructions
+- Architecture diagrams
+- Database schema documentation
+
+---
+
+### 4.6 Compatibility Requirements
+
+**NFR-COMP-001: Browser Support**
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+- No IE support
+
+**NFR-COMP-002: Device Support**
+- Desktop: 1024px and above
+- Tablet: 768px - 1023px
+- Mobile: 320px - 767px
+- Touch-optimized for mobile/tablet
+
+---
+
+## 5. System Architecture
+
+### 5.1 High-Level Architecture
+```
+┌─────────────────────────────────────────────────────────┐
+│                      Client Layer                       │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │   Next.js 14 Frontend (SSR/SSG)                 │   │
+│  │   - React Components (Shadcn UI)                │   │
+│  │   - State Management (Zustand/Context)          │   │
+│  │   - Monaco Editor                               │   │
+│  │   - TanStack Query (API calls)                  │   │
+│  └─────────────────────────────────────────────────┘   │
+└──────────────────────┬──────────────────────────────────┘
+                       │ HTTPS/REST API
+                       │
+┌──────────────────────▼──────────────────────────────────┐
+│                  Application Layer                      │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │   Node.js + Express.js Backend                  │   │
+│  │   ┌───────────────────────────────────────┐     │   │
+│  │   │  Controllers (Route Handlers)         │     │   │
+│  │   └───────────────────────────────────────┘     │   │
+│  │   ┌───────────────────────────────────────┐     │   │
+│  │   │  Services (Business Logic)            │     │   │
+│  │   │  - Auth Service                       │     │   │
+│  │   │  - Problem Service                    │     │   │
+│  │   │  - SRS Service (SM-2 Algorithm)       │     │   │
+│  │   │  - Analytics Service                  │     │   │
+│  │   └───────────────────────────────────────┘     │   │
+│  │   ┌───────────────────────────────────────┐     │   │
+│  │   │  Middleware                           │     │   │
+│  │   │  - Authentication                     │     │   │
+│  │   │  - Validation                         │     │   │
+│  │   │  - Error Handler                      │     │   │
+│  │   │  - Rate Limiter                       │     │   │
+│  │   └───────────────────────────────────────┘     │   │
+│  └─────────────────────────────────────────────────┘   │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+┌──────────────────────▼──────────────────────────────────┐
+│                    Data Layer                           │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │   MongoDB Database                              │   │
+│  │   - Users Collection                            │   │
+│  │   - Problems Collection                         │   │
+│  │   - UserProgress Collection                     │   │
+│  │   - DailyStats Collection                       │   │
+│  │   - StudyPlans Collection                       │   │
+│  └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+### 5.2 Folder Structure
+
+#### Frontend (Next.js)
+```
+codeprep-master-frontend/
+├── src/
+│   ├── app/                      # Next.js 14 App Router
+│   │   ├── (auth)/
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx
+│   │   │   ├── signup/
+│   │   │   │   └── page.tsx
+│   │   │   └── reset-password/
+│   │   │       └── page.tsx
+│   │   ├── (dashboard)/
+│   │   │   ├── layout.tsx       # Dashboard layout with sidebar
+│   │   │   ├── page.tsx         # Main dashboard
+│   │   │   ├── problems/
+│   │   │   │   ├── page.tsx     # Problem list
+│   │   │   │   └── [slug]/
+│   │   │   │       └── page.tsx # Problem detail
+│   │   │   ├── review/
+│   │   │   │   └── page.tsx     # Daily review
+│   │   │   ├── statistics/
+│   │   │   │   └── page.tsx
+│   │   │   ├── study-plan/
+│   │   │   │   └── page.tsx
+│   │   │   └── settings/
+│   │   │       └── page.tsx
+│   │   ├── onboarding/
+│   │   │   ├── assessment/
+│   │   │   │   └── page.tsx
+│   │   │   └── goals/
+│   │   │       └── page.tsx
+│   │   ├── layout.tsx           # Root layout
+│   │   └── globals.css
+│   ├── components/
+│   │   ├── ui/                  # Shadcn components
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   └── ...
+│   │   ├── features/
+│   │   │   ├── auth/
+│   │   │   │   ├── LoginForm.tsx
+│   │   │   │   └── SignupForm.tsx
+│   │   │   ├── problems/
+│   │   │   │   ├── ProblemCard.tsx
+│   │   │   │   ├── ProblemList.tsx
+│   │   │   │   ├── CodeEditor.tsx
+│   │   │   │   └── TestCasePanel.tsx
+│   │   │   ├── dashboard/
+│   │   │   │   ├── StatsCard.tsx
+│   │   │   │   ├── ConceptRadarChart.tsx
+│   │   │   │   └── StreakCalendar.tsx
+│   │   │   └── review/
+│   │   │       └── ReviewQueue.tsx
+│   │   ├── layout/
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── Sidebar.tsx
+│   │   │   └── Footer.tsx
+│   │   └── shared/
+│   │       ├── Loading.tsx
+│   │       └── ErrorBoundary.tsx
+│   ├── lib/
+│   │   ├── api/                 # API client functions
+│   │   │   ├── auth.ts
+│   │   │   ├── problems.ts
+│   │   │   └── progress.ts
+│   │   ├── utils.ts             # Utility functions
+│   │   └── constants.ts
+│   ├── hooks/
+│   │   ├── useAuth.ts
+│   │   ├── useProblems.ts
+│   │   └── useProgress.ts
+│   ├── store/                   # State management (Zustand)
+│   │   ├── authStore.ts
+│   │   └── problemStore.ts
+│   ├── types/
+│   │   ├── problem.ts
+│   │   ├── user.ts
+│   │   └── progress.ts
+│   └── styles/
+│       └── globals.css
+├── public/
+│   ├── images/
+│   └── icons/
+├── .env.local
+├── next.config.js
+├── tailwind.config.ts
+├── tsconfig.json
+└── package.json
+
+#### Backend (Express) - Modular Architecture
+```
+codeprep-master-backend/
+├── src/
+│   ├── modules/                 # Feature-based modules
+│   │   ├── auth/                # Authentication module
+│   │   │   ├── types/
+│   │   │   │   └── auth.types.ts
+│   │   │   ├── models/
+│   │   │   │   └── User.model.ts
+│   │   │   ├── controllers/
+│   │   │   │   └── auth.controller.ts
+│   │   │   ├── routes/
+│   │   │   │   └── auth.routes.ts
+│   │   │   ├── middleware/
+│   │   │   │   ├── auth.middleware.ts    # JWT verification
+│   │   │   │   └── admin.middleware.ts   # Admin role check
+│   │   │   └── utils/
+│   │   │       ├── password.utils.ts     # Bcrypt hashing
+│   │   │       └── token.utils.ts        # JWT generation
+│   │   ├── user/                # User management module
+│   │   │   ├── types/
+│   │   │   │   └── user.types.ts
+│   │   │   ├── controllers/
+│   │   │   │   └── user.controller.ts
+│   │   │   └── routes/
+│   │   │       └── user.routes.ts
+│   │   ├── problem/             # Problem management module
+│   │   │   ├── types/
+│   │   │   │   └── problem.types.ts
+│   │   │   ├── models/
+│   │   │   │   └── Problem.model.ts
+│   │   │   ├── controllers/
+│   │   │   │   └── problem.controller.ts
+│   │   │   └── routes/
+│   │   │       └── problem.routes.ts
+│   │   ├── progress/            # User progress tracking (future)
+│   │   │   ├── types/
+│   │   │   │   └── progress.types.ts
+│   │   │   ├── models/
+│   │   │   │   └── UserProgress.model.ts
+│   │   │   ├── controllers/
+│   │   │   │   └── progress.controller.ts
+│   │   │   ├── services/
+│   │   │   │   └── srs.service.ts        # SM-2 algorithm
+│   │   │   └── routes/
+│   │   │       └── progress.routes.ts
+│   │   ├── review/              # Daily review module (future)
+│   │   │   ├── types/
+│   │   │   │   └── review.types.ts
+│   │   │   ├── controllers/
+│   │   │   │   └── review.controller.ts
+│   │   │   ├── services/
+│   │   │   │   └── review.service.ts
+│   │   │   └── routes/
+│   │   │       └── review.routes.ts
+│   │   └── stats/               # Analytics module (future)
+│   │       ├── types/
+│   │       │   └── stats.types.ts
+│   │       ├── models/
+│   │       │   └── DailyStats.model.ts
+│   │       ├── controllers/
+│   │       │   └── stats.controller.ts
+│   │       ├── services/
+│   │       │   └── analytics.service.ts
+│   │       └── routes/
+│   │           └── stats.routes.ts
+│   ├── config/                  # Shared configuration
+│   │   ├── database.ts          # MongoDB connection
+│   │   └── constants.ts         # HTTP status, error messages
+│   ├── scripts/                 # Utility scripts
+│   │   ├── seedProblems.ts      # Seed initial problems
+│   │   └── seedUsers.ts
+│   ├── app.ts                   # Express app setup
+│   └── index.ts                 # Server entry point
+├── .env
+├── .env.example
+├── tsconfig.json
+└── package.json
+```
+
+### 5.3 Backend Modular Architecture Benefits
+
+**Feature-Based Organization:**
+Each module is self-contained with its own types, models, controllers, routes, middleware, and utilities. This provides:
+
+1. **Separation of Concerns**: Clear boundaries between features
+2. **Scalability**: Easy to add new modules (e.g., submission, contest, discussion)
+3. **Maintainability**: Changes to one module don't affect others
+4. **Team Collaboration**: Multiple developers can work on different modules independently
+5. **Code Reusability**: Modules can be extracted or reused in other projects
+6. **Testing**: Easier to test individual modules in isolation
+
+**Current Modules (Implemented):**
+- **auth**: User authentication, JWT tokens, password management
+- **user**: User profile operations (get, update, delete)
+- **problem**: Problem CRUD, search, filtering, statistics
+
+**Future Modules (Planned):**
+- **progress**: User progress tracking with SM-2 algorithm
+- **review**: Daily review queue and scheduling
+- **stats**: Analytics and performance metrics
+
+**Module Structure Pattern:**
+```
+module-name/
+├── types/           # TypeScript interfaces
+├── models/          # Mongoose schemas
+├── controllers/     # Request handlers
+├── routes/          # API endpoints
+├── middleware/      # Module-specific middleware (optional)
+└── services/        # Business logic (optional)
+```
+
+**API Routes:**
+- `/api/auth/*` - Authentication endpoints
+- `/api/users/*` - User management endpoints
+- `/api/problems/*` - Problem management endpoints
+
+---
+
+## 6. Database Design
+6.1 Collections and Schemas
+6.1.1 Users Collection
+javascript{
+  _id: ObjectId,
+  fullName: String,
+  email: String (unique, indexed),
+  password: String (hashed),
+  profilePicture: String (URL),
+  
+  // Profile info
+  currentCompany: String,
+  targetCompanies: [String],
+  primaryLanguage: String, // "javascript", "python", "java"
+  secondaryLanguages: [String],
+  yearsOfExperience: Number,
+  bio: String,
+  
+  // Skill assessment
+  skillLevel: String, // "Beginner", "Intermediate", "Advanced"
+  onboardingCompleted: Boolean,
+  assessmentResults: {
+    concepts: {
+      arrays: { score: Number, timeTaken: Number },
+      strings: { score: Number, timeTaken: Number },
+      // ... other concepts
+    },
+    completedAt: Date
+  },
+  
+  // Study preferences
+  preferences: {
+    defaultLanguage: String,
+    editorTheme: String, // "light", "dark", "high-contrast"
+    fontSize: Number,
+    autoSaveInterval: Number, // seconds
+    dailyProblemTarget: Number,
+    dailyTimeGoal: Number, // minutes
+    preferredDifficultyMix: {
+      easy: Number, // percentage
+      medium: Number,
+      hard: Number
+    },
+    enableTimer: Boolean,
+    autoHints: Boolean,
+    autoHintDelay: Number, // minutes
+    notifications: {
+      email: Boolean,
+      browser: Boolean,
+      weeklyDigest: Boolean,
+      achievements: Boolean
+    },
+    reviewSettings: {
+      queueSize: Number,
+      autoSchedule: Boolean,
+      includeWeekends: Boolean,
+      preferredTime: String // "morning", "afternoon", "evening"
+    }
+  },
+  
+  // Gamification
+  hintPoints: Number (default: 100),
+  achievements: [{
+    name: String,
+    earnedAt: Date,
+    icon: String
+  }],
+  
+  // Stats
+  totalProblemsSolved: Number,
+  totalTimeSpent: Number, // minutes
+  currentStreak: Number,
+  longestStreak: Number,
+  lastActiveDate: Date,
+  
+  // Security
+  passwordResetToken: String,
+  passwordResetExpires: Date,
+  lastLogin: Date,
+  failedLoginAttempts: Number,
+  accountLockedUntil: Date,
+  
+  createdAt: Date,
+  updatedAt: Date
+}
+
+// Indexes
+db.users.createIndex({ email: 1 }, { unique: true })
+db.users.createIndex({ createdAt: 1 })
+
+6.1.2 Problems Collection
+javascript{
+  _id: ObjectId,
+  title: String (indexed),
+  slug: String (unique, indexed),
+  difficulty: String, // "Easy", "Medium", "Hard"
+  
+  // Categorization
+  concepts: [String], // ["arrays", "hash-table", "two-pointers"]
+  patternTags: [String], // ["sliding-window", "dp-pattern"]
+  companyTags: [String], // ["Google", "Amazon", "Facebook"]
+  frequency: Number, // 0-100 (how often asked)
+  
+  // Content
+  description: String, // Markdown
+  examples: [{
+    input: String,
+    output: String,
+    explanation: String
+  }],
+  constraints: [String],
+  
+  // Code starters
+  starterCode: {
+    javascript: String,
+    python: String,
+    java: String
+  },
+  
+  // Test cases
+  testCases: [{
+    input: Object, // { nums: [2,7,11,15], target: 9 }
+    expectedOutput: Mixed,
+    isHidden: Boolean, // Hidden test cases
+    explanation: String
+  }],
+  
+  // Learning resources
+  hints: [{
+    level: Number, // 1, 2, 3
+    text: String,
+    costPoints: Number
+  }],
+  solution: {
+    approach: String,
+    explanation: String, // Markdown
+    timeComplexity: String,
+    spaceComplexity: String,
+    code: {
+      javascript: String,
+      python: String,
+      java: String
+    },
+    visualizations: [String], // URLs to diagrams
+    alternativeApproaches: [{
+      name: String,
+      timeComplexity: String,
+      spaceComplexity: String,
+      description: String
+    }]
+  },
+  
+  // Related content
+  relatedProblems: [ObjectId], // References to other problems
+  prerequisiteProblems: [ObjectId],
+  
+  // Engagement
+  likes: Number,
+  dislikes: Number,
+  acceptanceRate: Number, // Percentage
+  totalSubmissions: Number,
+  successfulSubmissions: Number,
+  
+  // Metadata
+  isActive: Boolean,
+  createdBy: ObjectId, // Admin user
+  createdAt: Date,
+  updatedAt: Date
+}
+
+// Indexes
+db.problems.createIndex({ slug: 1 }, { unique: true })
+db.problems.createIndex({ difficulty: 1, concepts: 1 })
+db.problems.createIndex({ companyTags: 1 })
+db.problems.createIndex({ frequency: -1 })
+db.problems.createIndex({ title: "text" }) // Text search
+
+6.1.3 UserProgress Collection
+javascript{
+  _id: ObjectId,
+  userId: ObjectId (indexed),
+  problemId: ObjectId (indexed),
+  
+  // SRS Algorithm data
+  easinessFactor: Number, // 1.3 - 2.5+
+  interval: Number, // Days until next review
+  repetitions: Number, // Count of successful reviews
+  nextReviewDate: Date (indexed),
+  lastReviewDate: Date,
+  
+  // Problem status
+  status: String, // "not_started", "in_progress", "solved", "reviewing"
+  firstAttemptDate: Date,
+  lastAttemptDate: Date,
+  
+  // Performance tracking
+  attempts: [{
+    attemptNumber: Number,
+    date: Date,
+    timeTaken: Number, // seconds
+    languageUsed: String,
+    code: String, // Optional: store for analysis
+    
+    // Result
+    success: Boolean,
+    qualityRating: Number, // 0-5 from user
+    testCasesPassed: Number,
+    testCasesTotal: Number,
+    
+    // Hints used
+    hintsViewed: [Number], // [1, 2] - hint levels viewed
+    hintPointsSpent: Number,
+    
+    // Errors made
+    errors: [{
+      type: String, // "syntax", "logic", "timeout"
+      message: String
+    }]
+  }],
+  
+  // Concept mastery (calculated)
+  conceptMastery: {
+    arrays: Number, // 0-100
+    "hash-table": Number,
+    // ... other concepts
+  },
+  
+  // Learning aids
+  solutionViewed: Boolean,
+  solutionViewedAt: Date,
+  notesAdded: Boolean,
+  userNotes: String, // Markdown
+  bookmarked: Boolean,
+  
+  // Analytics
+  totalTimeSpent: Number, // Total seconds across all attempts
+  averageTimePerAttempt: Number,
+  improvementRate: Number, // Quality improvement over attempts
+  
+  createdAt: Date,
+  updatedAt: Date
+}
+
+// Indexes
+db.userProgress.createIndex({ userId: 1, problemId: 1 }, { unique: true })
+db.userProgress.createIndex({ userId: 1, nextReviewDate: 1 })
+db.userProgress.createIndex({ userId: 1, status: 1 })
+db.userProgress.createIndex({ nextReviewDate: 1 }) // For daily review job
+
+6.1.4 DailyStats Collection
+javascript{
+  _id: ObjectId,
+  userId: ObjectId (indexed),
+  date: Date (indexed), // YYYY-MM-DD format
+  
+  // Daily metrics
+  problemsSolved: Number,
+  problemsAttempted: Number,
+  timeSpent: Number, // minutes
+  
+  // Breakdown by difficulty
+  problemsByDifficulty: {
+    easy: Number,
+    medium: Number,
+    hard: Number
+  },
+  
+  // Concepts practiced
+  conceptsPracticed: [String],
+  conceptsTimeSpent: {
+    arrays: Number,
+    trees: Number,
+    // ... minutes per concept
+  },
+  
+  // Reviews
+  reviewsCompleted: Number,
+  reviewsDue: Number,
+  reviewsOverdue: Number,
+  reviewAccuracy: Number, // Percentage
+  
+  // Performance
+  averageQualityRating: Number,
+  successRate: Number, // Percentage
+  averageTimePerProblem: Number, // minutes
+  
+  // Streak tracking
+  isActive: Boolean, // Did user solve at least 1 problem?
+  streakDay: Number, // Which day of the streak
+  
+  createdAt: Date,
+  updatedAt: Date
+}
+
+// Indexes
+db.dailyStats.createIndex({ userId: 1, date: -1 }, { unique: true })
+db.dailyStats.createIndex({ userId: 1, isActive: 1 })
+
+6.1.5 StudyPlans Collection
+javascript{
+  _id: ObjectId,
+  userId: ObjectId (indexed),
+  
+  // Plan details
+  name: String, // "30-Day FAANG Prep"
+  targetDate: Date,
+  dailyTimeCommitment: Number, // minutes
+  focusConcepts: [String],
+  
+  // Schedule
+  schedule: [{
+    date: Date,
+    dayNumber: Number,
+    
+    // Planned activities
+    reviewProblems: [ObjectId], // Problem IDs
+    newProblems: [ObjectId],
+    focusConcept: String,
+    
+    // Target metrics
+    targetProblemCount: Number,
+    targetTimeMinutes: Number,
+    
+    // Completion status
+    completed: Boolean,
+    actualProblemsSolved: Number,
+    actualTimeSpent: Number,
+    completedAt: Date
+  }],
+  
+  // Milestones
+  milestones: [{
+    name: String, // "Complete Arrays Module"
+    targetDate: Date,
+    completed: Boolean,
+    completedAt: Date
+  }],
+  
+  // Progress
+  overallProgress: Number, // Percentage
+  daysCompleted: Number,
+  daysRemaining: Number,
+  onTrack: Boolean,
+  
+  // Flexibility
+  isPaused: Boolean,
+  pausedAt: Date,
+  resumedAt: Date,
+  
+  // Status
+  status: String, // "active", "completed", "abandoned"
+  startDate: Date,
+  completedDate: Date,
+  
+  createdAt: Date,
+  updatedAt: Date
+}
+
+// Indexes
+db.studyPlans.createIndex({ userId: 1, status: 1 })
+db.studyPlans.createIndex({ userId: 1, createdAt: -1 })
+
+6.1.6 Notifications Collection (Optional)
+javascript{
+  _id: ObjectId,
+  userId: ObjectId (indexed),
+  
+  type: String, // "review_due", "achievement", "streak_warning"
+  title: String,
+  message: String,
+  
+  // Action
+  actionUrl: String, // Where to navigate
+  actionText: String, // "Start Review"
+  
+  // Status
+  isRead: Boolean,
+  readAt: Date,
+  
+  // Metadata
+  priority: String, // "low", "medium", "high"
+  expiresAt: Date, // Auto-delete old notifications
+  
+  createdAt: Date
+}
+
+// Indexes
+db.notifications.createIndex({ userId: 1, isRead: 1, createdAt: -1 })
+db.notifications.createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }) // TTL index
+```
+
+---
+
+### 6.2 Relationships
+```
+Users (1) ──────── (M) UserProgress ──────── (M) Problems
+   │                                              │
+   │                                              │
+   ├─────── (1:M) ──────── DailyStats            │
+   │                                              │
+   ├─────── (1:M) ──────── StudyPlans ───────────┤
+   │                                              │
+   └─────── (1:M) ──────── Notifications         │
+                                                  │
+                                    Problems (M) ─┴─ (M) Problems
+                                    (relatedProblems self-reference)
+```
+
+---
+
+## 7. API Specifications
+
+### Base URL
+```
+Development: http://localhost:5000/api/v1
+Production: https://api.codeprepmaster.com/api/v1
+Response Format
+javascript// Success
+{
+  success: true,
+  data: { ... },
+  message: "Operation successful"
+}
+
+// Error
+{
+  success: false,
+  error: {
+    code: "VALIDATION_ERROR",
+    message: "Invalid input data",
+    details: [...]
+  }
+}
+
+7.1 Authentication Endpoints
+POST /auth/register
+Description: Register new user
+Request Body:
+javascript{
+  fullName: "John Doe",
+  email: "john@example.com",
+  password: "SecurePass123",
+  confirmPassword: "SecurePass123"
+}
+Response (201):
+javascript{
+  success: true,
+  data: {
+    user: {
+      _id: "...",
+      fullName: "John Doe",
+      email: "john@example.com",
+      skillLevel: null,
+      onboardingCompleted: false
+    },
+    token: "jwt_token_here"
+  },
+  message: "Registration successful"
+}
+Errors:
+
+400: Validation error (weak password, invalid email)
+409: Email already exists
+
+
+POST /auth/login
+Description: User login
+Request Body:
+javascript{
+  email: "john@example.com",
+  password: "SecurePass123",
+  rememberMe: false
+}
+Response (200):
+javascript{
+  success: true,
+  data: {
+    user: {
+      _id: "...",
+      fullName: "John Doe",
+      email: "john@example.com",
+      currentStreak: 5,
+      totalProblemsSolved: 45
+    },
+    token: "jwt_token_here"
+  }
+}
+Errors:
+
+401: Invalid credentials
+423: Account locked (too many failed attempts)
+
+
+POST /auth/logout
+Description: Logout user
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  message: "Logged out successfully"
+}
+
+POST /auth/forgot-password
+Description: Request password reset
+Request Body:
+javascript{
+  email: "john@example.com"
+}
+Response (200):
+javascript{
+  success: true,
+  message: "If the email exists, a reset link has been sent"
+}
+
+POST /auth/reset-password
+Description: Reset password with token
+Request Body:
+javascript{
+  token: "reset_token_from_email",
+  newPassword: "NewSecurePass123",
+  confirmPassword: "NewSecurePass123"
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Password reset successful"
+}
+Errors:
+
+400: Token expired or invalid
+400: Passwords don't match
+
+
+7.2 Problem Endpoints
+GET /problems
+Description: Get all problems with filters
+Query Parameters:
+
+difficulty: Easy|Medium|Hard
+concepts: arrays,hash-table (comma-separated)
+status: not_started|in_progress|solved|reviewing
+companies: Google,Amazon (comma-separated)
+search: string (search in title)
+sort: frequency|-frequency|difficulty|acceptance
+page: number (default: 1)
+limit: number (default: 20)
+
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    problems: [
+      {
+        _id: "...",
+        title: "Two Sum",
+        slug: "two-sum",
+        difficulty: "Easy",
+        concepts: ["arrays", "hash-table"],
+        frequency: 95,
+        acceptanceRate: 49.2,
+        userStatus: "solved", // User-specific
+        nextReviewDate: "2025-10-30", // If in review
+        likes: 12543,
+        dislikes: 432
+      },
+      // ... more problems
+    ],
+    pagination: {
+      currentPage: 1,
+      totalPages: 4,
+      totalProblems: 80,
+      hasNext: true,
+      hasPrev: false
+    }
+  }
+}
+
+GET /problems/:slug
+Description: Get problem details
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    problem: {
+      _id: "...",
+      title: "Two Sum",
+      slug: "two-sum",
+      difficulty: "Easy",
+      concepts: ["arrays", "hash-table"],
+      description: "Markdown...",
+      examples: [...],
+      constraints: [...],
+      starterCode: {
+        javascript: "...",
+        python: "...",
+        java: "..."
+      },
+      hints: [
+        { level: 1, text: "...", costPoints: 5 },
+        { level: 2, text: "...", costPoints: 10 }
+      ],
+      relatedProblems: [
+        { _id: "...", title: "Three Sum", difficulty: "Medium" }
+      ],
+      companyTags: ["Google", "Amazon"],
+      frequency: 95
+    },
+    userProgress: {
+      status: "in_progress",
+      attempts: 2,
+      lastAttemptDate: "2025-10-23",
+      nextReviewDate: null,
+      bookmarked: false,
+      hintsViewed: [1],
+      solutionViewed: false
+    }
+  }
+}
+Errors:
+
+404: Problem not found
+
+
+POST /problems/:slug/submit
+Description: Submit solution for evaluation
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  code: "function twoSum(nums, target) { ... }",
+  language: "javascript",
+  timeTaken: 1245 // seconds
+}
+Response (200):
+javascript{
+  success: true,
+  data: {
+    status: "Accepted", // or "Wrong Answer", "Runtime Error"
+    testResults: [
+      { caseNumber: 1, passed: true, expected: [0,1], got: [0,1] },
+      { caseNumber: 2, passed: true, expected: [1,2], got: [1,2] },
+      { caseNumber: 3, passed: false, expected: [2,3], got: [3,2] }
+    ],
+    passedTests: 2,
+    totalTests: 3,
+    message: "2 out of 3 test cases passed"
+  }
+}
+
+POST /problems/:slug/rate-difficulty
+Description: Rate problem difficulty after solving
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  quality: 4, // 0-5
+  success: true,
+  timeTaken: 1245 // seconds
+}
+Response (200):
+javascript{
+  success: true,
+  data: {
+    nextReviewDate: "2025-10-30",
+    interval: 6, // days
+    message: "You'll see this problem again in 6 days"
+  }
+}
+
+GET /problems/:slug/solution
+Description: Get optimal solution
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    approach: "Hash Table",
+    explanation: "Markdown...",
+    timeComplexity: "O(n)",
+    spaceComplexity: "O(n)",
+    code: {
+      javascript: "...",
+      python: "...",
+      java: "..."
+    },
+    alternativeApproaches: [...]
+  }
+}
+Errors:
+
+403: Solution not unlocked yet (must solve or spend time)
+
+
+POST /problems/:slug/bookmark
+Description: Bookmark/unbookmark problem
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  bookmarked: true
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Problem bookmarked"
+}
+
+7.3 Review Endpoints
+GET /review/due
+Description: Get problems due for review today
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    reviews: [
+      {
+        problem: {
+          _id: "...",
+          title: "Two Sum",
+          slug: "two-sum",
+          difficulty: "Easy"
+        },
+        daysOverdue: 0, // 0 = due today, >0 = overdue
+        lastReviewDate: "2025-10-18",
+        repetitions: 2
+      },
+      // ... more reviews
+    ],
+    totalDue: 5,
+    overdue: 1
+  }
+}
+
+GET /review/schedule
+Description: Get review schedule for next 7 days
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    schedule: [
+      {
+        date: "2025-10-25",
+        reviewCount: 3,
+        problems: [...]
+      },
+      {
+        date: "2025-10-26",
+        reviewCount: 2,
+        problems: [...]
+      },
+      // ... next 7 days
+    ]
+  }
+}
+
+7.4 Progress & Stats Endpoints
+GET /progress/dashboard
+Description: Get dashboard overview
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    dailyStats: {
+      problemsSolved: 3,
+      timeSpent: 85, // minutes
+      streak: 12,
+      goalProgress: 75 // percentage
+    },
+    upcomingReviews: {
+      dueToday: 5,
+      dueTomorrow: 3,
+      overdue: 1
+    },
+    conceptMastery: {
+      arrays: 85,
+      trees: 65,
+      dp: 40,
+      graphs: 30,
+      // ... all concepts
+    },
+    recentActivity: [
+      {
+        problemTitle: "Two Sum",
+        status: "solved",
+        timeTaken: 15, // minutes
+        date: "2025-10-24"
+      },
+      // ... last 5 activities
+    ],
+    achievements: [
+      { name: "7-Day Streak", icon: "🔥", earnedAt: "2025-10-24" },
+      // ... recent achievements
+    ]
+  }
+}
+
+GET /progress/statistics
+Description: Detailed statistics
+Headers: Authorization: Bearer <token>
+Query Parameters:
+
+period: 7d|30d|90d|all (default: 30d)
+
+Response (200):
+javascript{
+  success: true,
+  data: {
+    overview: {
+      totalProblems: 45,
+      totalTime: 2250, // minutes
+      avgTimePerProblem: 50,
+      successRate: 78.5 // percentage
+    },
+    byDifficulty: {
+      easy: { solved: 25, attempted: 30 },
+      medium: { solved: 15, attempted: 20 },
+      hard: { solved: 5, attempted: 10 }
+    },
+    byConcept: [
+      {
+        concept: "arrays",
+        mastery: 85,
+        problemsSolved: 18,
+        timeSpent: 450
+      },
+      // ... all concepts
+    ],
+    activityCalendar: [
+      { date: "2025-10-24", problemsSolved: 3, active: true },
+      // ... last 90 days
+    ],
+    performanceTrend: [
+      { week: "2025-W42", avgQuality: 3.8, successRate: 75 },
+      // ... last 12 weeks
+    ]
+  }
+}
+
+GET /progress/concept/:conceptName
+Description: Detailed stats for specific concept
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    concept: "arrays",
+    mastery: 85,
+    problemsSolved: 18,
+    problemsTotal: 25, // Total array problems available
+    timeSpent: 450, // minutes
+    averageQuality: 4.2,
+    strengthAreas: ["two-pointers", "sliding-window"],
+    weakAreas: ["matrix-manipulation"],
+    recentProblems: [...],
+    recommendedNext: [...]
+  }
+}
+
+7.5 Study Plan Endpoints
+POST /study-plan/generate
+Description: Generate personalized study plan
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  targetDate: "2026-01-15",
+  dailyTimeCommitment: 60, // minutes
+  focusConcepts: ["arrays", "trees", "dp"]
+}
+Response (201):
+javascript{
+  success: true,
+  data: {
+    studyPlan: {
+      _id: "...",
+      name: "60-Day Interview Prep",
+      targetDate: "2026-01-15",
+      dailyTimeCommitment: 60,
+      schedule: [...], // Full schedule
+      milestones: [...],
+      totalProblems: 120,
+      estimatedCompletion: "2026-01-15"
+    }
+  }
+}
+
+GET /study-plan/current
+Description: Get active study plan
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    studyPlan: {
+      _id: "...",
+      name: "60-Day Interview Prep",
+      overallProgress: 45, // percentage
+      daysCompleted: 27,
+      daysRemaining: 33,
+      onTrack: true,
+      todaysTasks: {
+        reviewProblems: [...],
+        newProblems: [...],
+        completed: 2,
+        total: 5
+      },
+      upcomingMilestones: [...]
+    }
+  }
+}
+
+PATCH /study-plan/:id/complete-day
+Description: Mark day's tasks as complete
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  date: "2025-10-24",
+  problemsSolved: 5,
+  timeSpent: 70 // minutes
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Day 27 completed! Keep it up!",
+  data: {
+    progress: 46, // Updated percentage
+    nextDayTasks: [...]
+  }
+}
+
+7.6 User Settings Endpoints
+GET /user/profile
+Description: Get user profile
+Headers: Authorization: Bearer <token>
+Response (200):
+javascript{
+  success: true,
+  data: {
+    user: {
+      _id: "...",
+      fullName: "John Doe",
+      email: "john@example.com",
+      profilePicture: "...",
+      currentCompany: "TechCorp",
+      targetCompanies: ["Google", "Amazon"],
+      primaryLanguage: "javascript",
+      skillLevel: "Intermediate",
+      totalProblemsSolved: 45,
+      currentStreak: 12
+    }
+  }
+}
+
+PATCH /user/profile
+Description: Update user profile
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  fullName: "John Smith",
+  currentCompany: "NewCorp",
+  targetCompanies: ["Google", "Meta", "Netflix"]
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Profile updated successfully",
+  data: {
+    user: {...} // Updated user object
+  }
+}
+
+PATCH /user/preferences
+Description: Update user preferences
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  defaultLanguage: "python",
+  editorTheme: "dark",
+  dailyProblemTarget: 5,
+  notifications: {
+    email: true,
+    browser: false
+  }
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Preferences updated"
+}
+
+POST /user/change-password
+Description: Change password (when logged in)
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  currentPassword: "OldPass123",
+  newPassword: "NewPass456",
+  confirmPassword: "NewPass456"
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Password changed successfully"
+}
+Errors:
+
+401: Current password incorrect
+400: New password doesn't meet requirements
+
+
+7.7 Onboarding Endpoints
+POST /onboarding/assessment
+Description: Submit assessment results
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  results: [
+    {
+      problemId: "...",
+      concept: "arrays",
+      timeTaken: 600, // seconds
+      correct: true,
+      quality: 4
+    },
+    // ... 5 problems
+  ]
+}
+Response (200):
+javascript{
+  success: true,
+  data: {
+    skillLevel: "Intermediate",
+    conceptScores: {
+      arrays: 80,
+      strings: 60,
+      linkedLists: 40,
+      // ...
+    },
+    recommendations: [
+      "Focus on Linked Lists (40% mastery)",
+      "You're strong in Arrays! Keep it up."
+    ]
+  }
+}
+
+POST /onboarding/goals
+Description: Set study goals
+Headers: Authorization: Bearer <token>
+Request Body:
+javascript{
+  targetDate: "2026-01-15",
+  dailyTimeCommitment: 60,
+  focusConcepts: ["arrays", "trees", "dp"]
+}
+Response (200):
+javascript{
+  success: true,
+  message: "Onboarding completed!",
+  data: {
+    studyPlan: {...}, // Generated study plan
+    redirectTo: "/dashboard"
+  }
+}
+
+7.8 Error Codes
+javascript// Standard HTTP status codes
+200: Success
+201: Created
+400: Bad Request (validation error)
+401: Unauthorized (invalid token)
+403: Forbidden (no permission)
+404: Not Found
+409: Conflict (duplicate resource)
+422: Unprocessable Entity
+423: Locked (account locked)
+429: Too Many Requests (rate limit)
+500: Internal Server Error
+
+// Custom error codes (in response body)
+{
+  error: {
+    code: "VALIDATION_ERROR",
+    message: "Invalid input data",
+    details: ["Email is required", "Password too weak"]
+  }
+}
+
+Error Codes:
+- VALIDATION_ERROR
+- AUTHENTICATION_ERROR
+- AUTHORIZATION_ERROR
+- RESOURCE_NOT_FOUND
+- DUPLICATE_RESOURCE
+- ACCOUNT_LOCKED
+- RATE_LIMIT_EXCEEDED
+- INTERNAL_ERROR
