@@ -6,6 +6,7 @@ import { connectDB } from './config/database';
 import authRoutes from './modules/auth/routes/auth.routes';
 import userRoutes from './modules/user/routes/user.routes';
 import problemRoutes from './modules/problem/routes/problem.routes';
+import submissionRoutes from './modules/submission/routes/submission.routes';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ connectDB();
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/problems', problemRoutes);
+app.use('/api/submissions', submissionRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

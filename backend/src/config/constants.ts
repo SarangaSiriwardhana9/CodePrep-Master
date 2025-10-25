@@ -1,4 +1,3 @@
- 
 export const HTTP_STATUS = {
   OK: 200,
   CREATED: 201,
@@ -30,6 +29,7 @@ export const ERROR_MESSAGES = {
   SERVER_ERROR: 'Internal server error',
   RESET_TOKEN_EXPIRED: 'Password reset token expired or invalid',
   RESET_TOKEN_SENT: 'Password reset email sent successfully',
+  PROBLEM_NOT_FOUND: 'Problem not found',
 };
 
 export const SUCCESS_MESSAGES = {
@@ -45,5 +45,5 @@ export const SUCCESS_MESSAGES = {
 export const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 export const NAME_REGEX = /^[a-zA-Z\s'-]+$/;
 export const LOGIN_ATTEMPT_LIMIT = 5;
-export const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000;  
-export const ACCOUNT_LOCK_TIME = 30 * 60 * 1000;  
+export const LOGIN_ATTEMPT_WINDOW = 15 * 60 * 1000;
+export const ACCOUNT_LOCK_TIME = 30 * 60 * 1000;
