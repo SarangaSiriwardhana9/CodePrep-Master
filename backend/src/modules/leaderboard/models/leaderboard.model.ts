@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface ILeaderboardSnapshot extends Document {
+  _id: Types.ObjectId;
   period: 'daily' | 'weekly' | 'monthly' | 'yearly';
   startDate: Date;
   endDate: Date;
@@ -18,6 +19,7 @@ export interface ILeaderboardSnapshot extends Document {
 }
 
 export interface IUserRankHistory extends Document {
+  _id: Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   date: Date;
   globalRank: number;
@@ -30,6 +32,7 @@ export interface IUserRankHistory extends Document {
 }
 
 export interface IConceptLeaderboard extends Document {
+  _id: Types.ObjectId;
   concept: string;
   period: 'daily' | 'weekly' | 'monthly' | 'yearly' | 'allTime';
   startDate?: Date;
@@ -45,6 +48,7 @@ export interface IConceptLeaderboard extends Document {
 }
 
 export interface IFriendRanking extends Document {
+  _id: Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   friendId: mongoose.Types.ObjectId;
   friendRank: number;

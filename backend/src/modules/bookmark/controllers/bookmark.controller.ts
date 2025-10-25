@@ -9,6 +9,7 @@ import {
 import {
   BookmarkInput,
   BookmarkResponse,
+  BookmarkFolderInput,
   BookmarkFolderResponse,
   BookmarkStatsResponse,
   UpdateBookmarkInput,
@@ -123,7 +124,7 @@ export const getBookmarks = async (req: Request, res: Response): Promise<void> =
       tags?: any;
     }
 
-    const filter: FilterQuery = { userId };
+    const filter: FilterQuery = { userId: userId! };
 
     if (folderId) {
       filter.folderId = folderId;
@@ -531,9 +532,9 @@ export const getBookmarkStats = async (req: Request, res: Response): Promise<voi
     });
 
     const bookmarksByDifficulty = {
-      easy: problems.filter((p) => p.difficulty === 'easy').length,
-      medium: problems.filter((p) => p.difficulty === 'medium').length,
-      hard: problems.filter((p) => p.difficulty === 'hard').length,
+      easy: problems.filter((p) => p.difficulty === 'Easy').length,
+      medium: problems.filter((p) => p.difficulty === 'Medium').length,
+      hard: problems.filter((p) => p.difficulty === 'Hard').length,
     };
 
     res.status(HTTP_STATUS.OK).json({

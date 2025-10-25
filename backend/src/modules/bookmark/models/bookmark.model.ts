@@ -1,6 +1,7 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IBookmark extends Document {
+  _id: Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   problemId: mongoose.Types.ObjectId;
   folderId?: mongoose.Types.ObjectId;
@@ -12,6 +13,7 @@ export interface IBookmark extends Document {
 }
 
 export interface IBookmarkFolder extends Document {
+  _id: Types.ObjectId;
   userId: mongoose.Types.ObjectId;
   folderName: string;
   description?: string;
@@ -23,6 +25,7 @@ export interface IBookmarkFolder extends Document {
 }
 
 export interface ISharedFolder extends Document {
+  _id: Types.ObjectId;
   folderId: mongoose.Types.ObjectId;
   sharedBy: mongoose.Types.ObjectId;
   sharedWith: mongoose.Types.ObjectId;
