@@ -97,7 +97,7 @@ export const submitSolution = async (req: Request, res: Response): Promise<void>
       success: true,
       message: 'Solution submitted successfully',
       data: {
-        _id: submission._id.toString(),
+        _id: (submission._id as any).toString(),
         userId: submission.userId.toString(),
         problemId: submission.problemId.toString(),
         language: submission.language,
@@ -155,7 +155,7 @@ export const getSubmissionById = async (req: Request, res: Response): Promise<vo
       success: true,
       message: 'Submission fetched successfully',
       data: {
-        _id: submission._id.toString(),
+        _id: (submission._id as any).toString(),
         userId: submission.userId.toString(),
         problemId: submission.problemId.toString(),
         code: submission.code,
@@ -193,7 +193,7 @@ export const getUserSubmissions = async (req: Request, res: Response): Promise<v
       status?: string;
     }
     
-    const filter: FilterQuery = { userId };
+    const filter: FilterQuery = { userId: userId! };
 
     if (problemId) {
       filter.problemId = problemId as string;
@@ -216,7 +216,7 @@ export const getUserSubmissions = async (req: Request, res: Response): Promise<v
       message: 'User submissions fetched successfully',
       data: {
         submissions: submissions.map((sub) => ({
-          _id: sub._id.toString(),
+          _id: (sub._id as any).toString(),
           userId: sub.userId.toString(),
           problemId: sub.problemId.toString(),
           language: sub.language,
@@ -278,7 +278,7 @@ export const getProblemSubmissions = async (req: Request, res: Response): Promis
       message: 'Problem submissions fetched successfully',
       data: {
         submissions: submissions.map((sub) => ({
-          _id: sub._id.toString(),
+          _id: (sub._id as any).toString(),
           userId: sub.userId.toString(),
           problemId: sub.problemId.toString(),
           language: sub.language,
@@ -487,7 +487,7 @@ export const updateSubmissionFeedback = async (req: Request, res: Response): Pro
       success: true,
       message: 'Submission updated successfully',
       data: {
-        _id: submission._id.toString(),
+        _id: (submission._id as any).toString(),
         feedback: submission.feedback,
         status: submission.status,
       },
