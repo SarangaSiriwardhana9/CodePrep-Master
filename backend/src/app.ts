@@ -8,6 +8,13 @@ import userRoutes from './modules/user/routes/user.routes';
 import problemRoutes from './modules/problem/routes/problem.routes';
 import submissionRoutes from './modules/submission/routes/submission.routes';
 import contestRoutes from './modules/contests/routes/contest.routes';
+import adminRoutes from './modules/admin/routes/admin.routes';
+import discussionRoutes from './modules/discussion/routes/discussion.routes';
+import analyticsRoutes from './modules/analytics/routes/analytics.routes';
+import bookmarkRoutes from './modules/bookmark/routes/bookmark.routes';
+import leaderboardRoutes from './modules/leaderboard/routes/leaderboard.routes';
+import tagRoutes from './modules/tag/routes/tag.routes';
+import userStatsRoutes from './modules/userStats/routes/userStats.routes';
 
 dotenv.config();
 
@@ -31,6 +38,13 @@ app.use('/api/users', userRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/contests', contestRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/discussions', discussionRoutes);
+app.use('/api/analytics', analyticsRoutes);
+app.use('/api/bookmarks', bookmarkRoutes);
+app.use('/api/leaderboard', leaderboardRoutes);
+app.use('/api/tags', tagRoutes);
+app.use('/api/user-stats', userStatsRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
