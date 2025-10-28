@@ -1,228 +1,212 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import Image from 'next/image';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background">
-      <main className="container mx-auto py-12 px-4 space-y-12">
-        {/* Header Section */}
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl font-bold text-foreground">
-            Brown & White Theme Showcase
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Explore our beautiful brown and white themed components powered by shadcn/ui
-          </p>
+    <div className="min-h-screen">
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold">CodePrep Master</h1>
+          <div className="flex gap-4">
+            <Link href="/login">
+              <Button variant="outline">Login</Button>
+            </Link>
+            <Link href="/signup">
+              <Button>Get Started</Button>
+            </Link>
+          </div>
         </div>
+      </header>
 
-        {/* Buttons Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Buttons</CardTitle>
-            <CardDescription>Various button styles with our brown theme</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-4">
-            <Button>Primary Button</Button>
-            <Button variant="secondary">Secondary Button</Button>
-            <Button variant="outline">Outline Button</Button>
-            <Button variant="ghost">Ghost Button</Button>
-            <Button variant="destructive">Destructive Button</Button>
-          </CardContent>
-        </Card>
-
-        {/* Badges Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Badges</CardTitle>
-            <CardDescription>Status indicators and labels</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-3">
-            <Badge>Default</Badge>
-            <Badge variant="secondary">Secondary</Badge>
-            <Badge variant="outline">Outline</Badge>
-            <Badge variant="destructive">Destructive</Badge>
-          </CardContent>
-        </Card>
-
-        {/* Alerts Section */}
-        <div className="grid gap-4 md:grid-cols-2">
-          <Alert>
-            <AlertTitle>Information</AlertTitle>
-            <AlertDescription>
-              This is an informational alert with our brown theme colors.
-            </AlertDescription>
-          </Alert>
-          <Alert variant="destructive">
-            <AlertTitle>Warning</AlertTitle>
-            <AlertDescription>
-              This is a destructive alert for important warnings.
-            </AlertDescription>
-          </Alert>
-        </div>
-
-        {/* Cards with Avatars */}
-        <div className="grid gap-6 md:grid-cols-3">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-lg">User Profile</CardTitle>
-                  <CardDescription>@username</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                A beautiful card component showcasing our brown theme with avatar integration.
+      <section className="relative h-[600px]">
+        <Image
+          src="/images/banner2.jpg"
+          alt="Hero banner"
+          fill
+          className="object-cover"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
+        <div className="absolute inset-0 flex items-center">
+          <div className="container mx-auto px-4">
+            <div className="max-w-2xl text-white">
+              <Badge className="mb-4">Spaced Repetition Learning</Badge>
+              <h1 className="text-5xl font-bold mb-6">
+                Master Coding Interviews with Science-Backed Learning
+              </h1>
+              <p className="text-xl mb-8 text-white/90">
+                Practice smarter, not harder. Our platform uses spaced repetition to help you retain problem-solving patterns effectively.
               </p>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full">View Profile</Button>
-            </CardFooter>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Progress Tracker</CardTitle>
-              <CardDescription>Track your progress</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Completion</span>
-                  <span className="text-muted-foreground">75%</span>
-                </div>
-                <Progress value={75} />
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>Tasks Done</span>
-                  <span className="text-muted-foreground">45%</span>
-                </div>
-                <Progress value={45} />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Statistics</CardTitle>
-              <CardDescription>Your activity overview</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Total Views</span>
-                <Badge>1,234</Badge>
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Active Users</span>
-                <Badge variant="secondary">567</Badge>
-              </div>
-              <Separator />
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium">Conversions</span>
-                <Badge variant="outline">89</Badge>
-              </div>
-            </CardContent>
-          </Card>
+              <Link href="/signup">
+                <Button size="lg" className="text-lg px-8">
+                  Start Learning Free
+                </Button>
+              </Link>
+            </div>
+          </div>
         </div>
+      </section>
 
-        {/* Tabs Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Tabbed Content</CardTitle>
-            <CardDescription>Navigate through different sections</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
-                <TabsTrigger value="analytics">Analytics</TabsTrigger>
-                <TabsTrigger value="settings">Settings</TabsTrigger>
-              </TabsList>
-              <TabsContent value="overview" className="space-y-4 mt-4">
-                <p className="text-muted-foreground">
-                  Welcome to the overview section. Here you can see a summary of your dashboard with our beautiful brown theme.
-                </p>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div className="p-4 border rounded-lg">
-                    <h3 className="font-semibold mb-2">Quick Stats</h3>
-                    <p className="text-sm text-muted-foreground">Your performance metrics at a glance.</p>
+      <section className="py-20 bg-muted/30">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold mb-4">Why CodePrep Master?</h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Traditional practice isn&apos;t enough. We combine proven learning science with coding practice.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <span className="text-2xl">🧠</span>
+                </div>
+                <CardTitle>Spaced Repetition</CardTitle>
+                <CardDescription>
+                  Review problems at optimal intervals to maximize long-term retention
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <span className="text-2xl">📊</span>
+                </div>
+                <CardTitle>Progress Tracking</CardTitle>
+                <CardDescription>
+                  Monitor your concept mastery and identify weak areas with detailed analytics
+                </CardDescription>
+              </CardHeader>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
+                  <span className="text-2xl">🎯</span>
+                </div>
+                <CardTitle>Personalized Learning</CardTitle>
+                <CardDescription>
+                  Adaptive difficulty and custom study plans tailored to your goals
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="relative h-[400px] rounded-lg overflow-hidden">
+              <Image
+                src="/images/banner3.jpg"
+                alt="Learning platform"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <Badge className="mb-4">How It Works</Badge>
+              <h2 className="text-4xl font-bold mb-6">
+                Learn Smarter with Spaced Repetition
+              </h2>
+              <div className="space-y-6">
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                    1
                   </div>
-                  <div className="p-4 border rounded-lg">
-                    <h3 className="font-semibold mb-2">Recent Activity</h3>
-                    <p className="text-sm text-muted-foreground">Latest updates and changes.</p>
+                  <div>
+                    <h3 className="font-semibold mb-2">Initial Assessment</h3>
+                    <p className="text-muted-foreground">
+                      Take a quick assessment to determine your starting level and weak areas
+                    </p>
                   </div>
                 </div>
-              </TabsContent>
-              <TabsContent value="analytics" className="space-y-4 mt-4">
-                <p className="text-muted-foreground">
-                  Analytics section showing detailed insights and data visualization.
-                </p>
-              </TabsContent>
-              <TabsContent value="settings" className="space-y-4 mt-4">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input id="name" placeholder="Enter your name" />
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                    2
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="Enter your email" />
+                  <div>
+                    <h3 className="font-semibold mb-2">Practice Problems</h3>
+                    <p className="text-muted-foreground">
+                      Solve curated coding problems with hints and detailed solutions
+                    </p>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
-                    <Textarea id="bio" placeholder="Tell us about yourself" />
-                  </div>
-                  <Button>Save Changes</Button>
                 </div>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-2">Scheduled Reviews</h3>
+                    <p className="text-muted-foreground">
+                      Problems resurface at scientifically optimal intervals for maximum retention
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        {/* Form Section */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Contact Form</CardTitle>
-            <CardDescription>Get in touch with us using our themed form</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="firstName">First Name</Label>
-                <Input id="firstName" placeholder="John" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="lastName">Last Name</Label>
-                <Input id="lastName" placeholder="Doe" />
-              </div>
+      <section className="py-20 bg-primary text-primary-foreground">
+        <div className="container mx-auto px-4 text-center">
+          <h2 className="text-4xl font-bold mb-6">Ready to Ace Your Interviews?</h2>
+          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+            Join thousands of developers who are mastering coding interviews with our proven system
+          </p>
+          <Link href="/signup">
+            <Button size="lg" variant="secondary" className="text-lg px-8">
+              Start Free Today
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      <footer className="border-t py-12">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="font-bold text-lg mb-4">CodePrep Master</h3>
+              <p className="text-sm text-muted-foreground">
+                Master coding interviews with spaced repetition learning
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea id="message" placeholder="Type your message here..." rows={4} />
+            <div>
+              <h4 className="font-semibold mb-4">Product</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#" className="hover:text-foreground">Features</Link></li>
+                <li><Link href="#" className="hover:text-foreground">Pricing</Link></li>
+                <li><Link href="#" className="hover:text-foreground">FAQ</Link></li>
+              </ul>
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between">
-            <Button variant="outline">Cancel</Button>
-            <Button>Submit</Button>
-          </CardFooter>
-        </Card>
-      </main>
+            <div>
+              <h4 className="font-semibold mb-4">Company</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#" className="hover:text-foreground">About</Link></li>
+                <li><Link href="#" className="hover:text-foreground">Blog</Link></li>
+                <li><Link href="#" className="hover:text-foreground">Contact</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold mb-4">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link href="#" className="hover:text-foreground">Privacy</Link></li>
+                <li><Link href="#" className="hover:text-foreground">Terms</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
+            <p>&copy; 2025 CodePrep Master. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
