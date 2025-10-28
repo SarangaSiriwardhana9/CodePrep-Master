@@ -1,25 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { Navbar } from '@/components/common';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
 export default function Home() {
   return (
     <div className="min-h-screen">
-      <header className="border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold">CodePrep Master</h1>
-          <div className="flex gap-4">
-            <Link href="/login">
-              <Button variant="outline">Login</Button>
-            </Link>
-            <Link href="/signup">
-              <Button>Get Started</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <section className="relative h-[600px]">
         <Image
