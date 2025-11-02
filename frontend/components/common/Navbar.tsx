@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation';
-import { useAuthContext } from '@/providers';
-import { useAuth } from '@/features/auth/hooks';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/store';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -15,17 +14,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, Settings, User, Code2 } from 'lucide-react';
+import { LogOut, Settings, User, Code2, Shield } from 'lucide-react';
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, isLoading, isAuthenticated } = useAuthContext();
-  const { logout } = useAuth();
+  const { user, isLoading, isAuthenticated, logout } = useAuth();
 
   const handleLogout = async () => {
-    await logout();
-    router.push('/login');
+    try {
+      await logout();
+      router.push('/login');
+      router.refresh();
+    } catch (error) {
+      console.error('Logout error:', error);
+      router.push('/login');
+    }
   };
 
   const getInitials = (name: string) => {
@@ -38,6 +42,7 @@ export function Navbar() {
   };
 
   const isActive = (path: string) => pathname === path;
+  const isAdmin = user?.role === 'admin';
 
   return (
     <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -48,41 +53,6 @@ export function Navbar() {
               <Code2 className="h-6 w-6 text-primary" />
               <span className="text-xl font-bold">CodePrep Master</span>
             </Link>
-
-            {isAuthenticated && (
-              <div className="hidden md:flex items-center gap-6">
-                <Link
-                  href="/dashboard"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive('/dashboard')
-                      ? 'text-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  Dashboard
-                </Link>
-                <Link
-                  href="/problems"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive('/problems')
-                      ? 'text-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  Problems
-                </Link>
-                <Link
-                  href="/leaderboard"
-                  className={`text-sm font-medium transition-colors hover:text-primary ${
-                    isActive('/leaderboard')
-                      ? 'text-foreground'
-                      : 'text-muted-foreground'
-                  }`}
-                >
-                  Leaderboard
-                </Link>
-              </div>
-            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -106,6 +76,9 @@ export function Navbar() {
                       <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
+                      {isAdmin && (
+                        <p className="text-xs text-primary font-medium mt-1">Administrator</p>
+                      )}
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -117,6 +90,15 @@ export function Navbar() {
                     <Settings className="mr-2 h-4 w-4" />
                     <span>Settings</span>
                   </DropdownMenuItem>
+                  {isAdmin && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => router.push('/users')}>
+                        <Shield className="mr-2 h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </DropdownMenuItem>
+                    </>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />

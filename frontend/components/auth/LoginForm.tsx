@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -22,10 +22,14 @@ export function LoginForm() {
     e.preventDefault();
     clearError();
     
-    const response = await login(formData);
-    
-    if (response?.success) {
-      router.push('/dashboard');
+    try {
+      const response = await login(formData);
+      if (response?.success) {
+        const redirectPath = response.user?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+        router.push(redirectPath);
+      }
+    } catch (err) {
+      console.error('Login error:', err);
     }
   };
 

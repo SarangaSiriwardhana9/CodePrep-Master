@@ -16,7 +16,6 @@ export const authService = {
       data
     );
     
-    // Store tokens in localStorage
     if (response.data.token) {
       localStorage.setItem('accessToken', response.data.token);
     }

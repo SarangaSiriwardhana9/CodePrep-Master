@@ -1,201 +1,137 @@
-import Image from 'next/image';
+'use client';
+
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Navbar } from '@/components/common';
-import { Button } from '@/components/ui/button';
-import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/store';
 
 export default function Home() {
+  const { isAuthenticated } = useAuth();
+
   return (
-    <div className="min-h-screen">
+    <>
       <Navbar />
-
-      <section className="relative h-[600px]">
-        <Image
-          src="/images/banner2.jpg"
-          alt="Hero banner"
-          fill
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/50" />
-        <div className="absolute inset-0 flex items-center">
-          <div className="container mx-auto px-4">
-            <div className="max-w-2xl text-white">
-              <Badge className="mb-4">Spaced Repetition Learning</Badge>
-              <h1 className="text-5xl font-bold mb-6">
-                Master Coding Interviews with Science-Backed Learning
-              </h1>
-              <p className="text-xl mb-8 text-white/90">
-                Practice smarter, not harder. Our platform uses spaced repetition to help you retain problem-solving patterns effectively.
-              </p>
-              <Link href="/signup">
-                <Button size="lg" className="text-lg px-8">
-                  Start Learning Free
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Why CodePrep Master?</h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Traditional practice isn&apos;t enough. We combine proven learning science with coding practice.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">🧠</span>
-                </div>
-                <CardTitle>Spaced Repetition</CardTitle>
-                <CardDescription>
-                  Review problems at optimal intervals to maximize long-term retention
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">📊</span>
-                </div>
-                <CardTitle>Progress Tracking</CardTitle>
-                <CardDescription>
-                  Monitor your concept mastery and identify weak areas with detailed analytics
-                </CardDescription>
-              </CardHeader>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                  <span className="text-2xl">🎯</span>
-                </div>
-                <CardTitle>Personalized Learning</CardTitle>
-                <CardDescription>
-                  Adaptive difficulty and custom study plans tailored to your goals
-                </CardDescription>
-              </CardHeader>
-            </Card>
-          </div>
-        </div>
-      </section>
-
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative h-[400px] rounded-lg overflow-hidden">
-              <Image
-                src="/images/banner3.jpg"
-                alt="Learning platform"
-                fill
-                className="object-cover"
-              />
-            </div>
-            <div>
-              <Badge className="mb-4">How It Works</Badge>
-              <h2 className="text-4xl font-bold mb-6">
-                Learn Smarter with Spaced Repetition
-              </h2>
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-                    1
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Initial Assessment</h3>
-                    <p className="text-muted-foreground">
-                      Take a quick assessment to determine your starting level and weak areas
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-                    2
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Practice Problems</h3>
-                    <p className="text-muted-foreground">
-                      Solve curated coding problems with hints and detailed solutions
-                    </p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0">
-                    3
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Scheduled Reviews</h3>
-                    <p className="text-muted-foreground">
-                      Problems resurface at scientifically optimal intervals for maximum retention
-                    </p>
-                  </div>
-                </div>
+      <main className="flex min-h-[calc(100vh-64px)] flex-col">
+        <section className="relative flex-1 flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+          <div className="container px-4 md:px-6">
+            <div className="flex flex-col items-center space-y-8 text-center">
+              <div className="space-y-4 max-w-3xl">
+                <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
+                  Master Your Coding Interviews
+                </h1>
+                <p className="mx-auto max-w-[700px] text-lg text-muted-foreground md:text-xl">
+                  Practice smarter with spaced repetition. Ace your coding interviews with our intelligent learning platform powered by the SM-2 algorithm.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row gap-4">
+                {isAuthenticated ? (
+                  <>
+                    <Link href="/dashboard">
+                      <Button size="lg" className="px-8">
+                        Go to Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/problems">
+                      <Button size="lg" variant="outline" className="px-8">
+                        Browse Problems
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link href="/signup">
+                      <Button size="lg" className="px-8">
+                        Get Started Free
+                      </Button>
+                    </Link>
+                    <Link href="/login">
+                      <Button size="lg" variant="outline" className="px-8">
+                        Sign In
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Ace Your Interviews?</h2>
-          <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
-            Join thousands of developers who are mastering coding interviews with our proven system
-          </p>
-          <Link href="/signup">
-            <Button size="lg" variant="secondary" className="text-lg px-8">
-              Start Free Today
-            </Button>
-          </Link>
-        </div>
-      </section>
+        <section className="py-20 bg-background">
+          <div className="container px-4 md:px-6">
+            <h2 className="text-3xl font-bold text-center mb-12">Why CodePrep Master?</h2>
+            <div className="grid gap-8 md:grid-cols-3">
+              <div className="flex flex-col items-center text-center space-y-4 p-6 rounded-lg border bg-card">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <svg
+                    className="h-8 w-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold">Spaced Repetition</h3>
+                <p className="text-muted-foreground">
+                  Leverage the proven SM-2 algorithm to optimize your learning and retention
+                </p>
+              </div>
 
-      <footer className="border-t py-12">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="font-bold text-lg mb-4">CodePrep Master</h3>
-              <p className="text-sm text-muted-foreground">
-                Master coding interviews with spaced repetition learning
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground">Features</Link></li>
-                <li><Link href="#" className="hover:text-foreground">Pricing</Link></li>
-                <li><Link href="#" className="hover:text-foreground">FAQ</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground">About</Link></li>
-                <li><Link href="#" className="hover:text-foreground">Blog</Link></li>
-                <li><Link href="#" className="hover:text-foreground">Contact</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="#" className="hover:text-foreground">Privacy</Link></li>
-                <li><Link href="#" className="hover:text-foreground">Terms</Link></li>
-              </ul>
+              <div className="flex flex-col items-center text-center space-y-4 p-6 rounded-lg border bg-card">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <svg
+                    className="h-8 w-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold">Curated Problem Sets</h3>
+                <p className="text-muted-foreground">
+                  Practice with a hand-picked collection of frequently asked interview questions
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center text-center space-y-4 p-6 rounded-lg border bg-card">
+                <div className="p-3 rounded-full bg-primary/10">
+                  <svg
+                    className="h-8 w-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold">Intelligent Progress Tracking</h3>
+                <p className="text-muted-foreground">
+                  Monitor your mastery, streaks, and identify weak areas with detailed analytics
+                </p>
+              </div>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>&copy; 2025 CodePrep Master. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+        </section>
+      </main>
+    </>
   );
 }

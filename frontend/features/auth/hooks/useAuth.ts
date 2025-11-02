@@ -81,11 +81,11 @@ export const useAuth = (): UseAuthReturn => {
     
     try {
       await authService.logout();
-      setUser(null);
     } catch (err: any) {
       const errorMessage = err.response?.data?.error?.message || 'Logout failed';
       setError(errorMessage);
     } finally {
+      setUser(null);
       setIsLoading(false);
     }
   }, []);
@@ -123,6 +123,11 @@ export const useAuth = (): UseAuthReturn => {
   }, []);
 
   const getProfile = useCallback(async (): Promise<User | null> => {
+    const token = authService.getAccessToken();
+    if (!token) {
+      return null;
+    }
+    
     setIsLoading(true);
     setError(null);
     
@@ -134,10 +139,12 @@ export const useAuth = (): UseAuthReturn => {
         return response.user;
       }
       
+      setUser(null);
       return null;
     } catch (err: any) {
       const errorMessage = err.response?.data?.error?.message || 'Failed to fetch profile';
       setError(errorMessage);
+      setUser(null);
       return null;
     } finally {
       setIsLoading(false);

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/features/auth/hooks';
+import { useAuth } from '@/store';
 import { validateSignupForm } from '@/features/auth/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,10 +34,14 @@ export function SignupForm() {
       return;
     }
 
-    const response = await signup(formData);
-    
-    if (response?.success) {
-      router.push('/dashboard');
+    try {
+      const response = await signup(formData);
+      if (response?.success) {
+        const redirectPath = response.user?.role === 'admin' ? '/admin/dashboard' : '/dashboard';
+        router.push(redirectPath);
+      }
+    } catch (err) {
+      console.error('Signup error:', err);
     }
   };
 

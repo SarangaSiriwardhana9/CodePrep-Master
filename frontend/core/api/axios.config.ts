@@ -32,7 +32,18 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Don't retry for login, signup, forgot-password, reset-password endpoints
+    const authEndpoints = ['/auth/login', '/auth/signup', '/auth/forgot-password', '/auth/reset-password'];
+    const isAuthEndpoint = authEndpoints.some(endpoint => originalRequest.url?.includes(endpoint));
+
+    // Only try to refresh token if:
+    // 1. It's a 401 error
+    // 2. We haven't already retried
+    // 3. It's not an auth endpoint (login/signup)
+    // 4. We have a refresh token
+    const hasRefreshToken = localStorage.getItem('refreshToken');
+    
+    if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint && hasRefreshToken) {
       originalRequest._retry = true;
 
       try {
@@ -54,9 +65,15 @@ apiClient.interceptors.response.use(
           return apiClient(originalRequest);
         }
       } catch (refreshError) {
+        // Clear tokens and redirect only if refresh fails
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
-        window.location.href = '/login';
+        
+        // Only redirect if not already on auth pages
+        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
+          window.location.href = '/login';
+        }
+        
         return Promise.reject(refreshError);
       }
     }

@@ -150,6 +150,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
         _id: user._id.toString(),
         name: user.name,
         email: user.email,
+        role: user.role || 'user',
       },
     };
 
@@ -271,6 +272,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         _id: user._id.toString(),
         name: user.name,
         email: user.email,
+        role: user.role || 'user',
       },
     };
 
@@ -552,6 +554,7 @@ export const getProfile = async (req: Request, res: Response): Promise<void> => 
         _id: user._id.toString(),
         name: user.name,
         email: user.email,
+        role: user.role || 'user',
         lastLogin: user.lastLogin,
       },
     });
