@@ -18,10 +18,9 @@ export interface UserManagement {
   status: 'active' | 'suspended' | 'banned';
   role: 'user' | 'admin' | 'moderator';
   createdAt: Date | string;
-  lastLogin: Date | string;
-  problemsSolved: number;
-  discussionCount: number;
-  actions: string[];
+  lastLogin?: Date | string | null;
+  problemsSolved?: number;
+  discussionCount?: number;
 }
 
 export interface ProblemManagement {

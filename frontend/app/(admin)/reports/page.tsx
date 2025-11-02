@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useAdmin } from '@/features/admin/hooks';
+import { useAdmin } from '@/store';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 

@@ -19,11 +19,29 @@ export const adminService = {
     return response.data;
   },
 
-  getUsers: async (params?: { page?: number; limit?: number }): Promise<UsersListResponse> => {
+  getUsers: async (params?: { page?: number; limit?: number; status?: string; role?: string; search?: string }): Promise<UsersListResponse> => {
+    const limit = params?.limit || 20;
+    const page = params?.page || 1;
+    const skip = (page - 1) * limit;
+
+    const queryParams: any = {
+      limit,
+      skip,
+    };
+
+    if (params?.status) queryParams.status = params.status;
+    if (params?.role) queryParams.role = params.role;
+    if (params?.search) queryParams.search = params.search;
+
     const response = await apiClient.get<UsersListResponse>(
       API_ENDPOINTS.ADMIN.USERS,
-      { params }
+      { params: queryParams }
     );
+
+    if (response.data.success && response.data.data?.pagination) {
+      response.data.data.pagination.page = page;
+    }
+
     return response.data;
   },
 
